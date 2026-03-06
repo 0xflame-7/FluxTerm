@@ -1,24 +1,6 @@
-// =============================================================================
-// ExecutionEngine.ts
-//
-// Manages isolated shell processes for notebook block executions.
-//
-// Design principles:
-//   - Each block gets its own fresh shell process. No process reuse.
-//   - The engine is stateless with respect to notebook data — it only tracks
-//     live processes in its registry.
-//   - Output is streamed line-by-line via the onStream callback.
-//   - After the user command completes, sentinel lines are emitted by the shell
-//     wrapper and parsed to extract finalCwd and finalBranch.
-//   - Meta lines are filtered from visible output before streaming.
-//   - Partial lines (no trailing newline when process closes) are flushed.
-// =============================================================================
-
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { OutputLine } from "../../types/MessageProtocol";
 import { Ext } from "../../utils/logger";
-
-// ─── Public Interfaces ────────────────────────────────────────────────────────
 
 export interface BlockCompletePayload {
   blockId: string;
@@ -33,8 +15,6 @@ export interface ExecutionCallbacks {
   onComplete: (payload: BlockCompletePayload) => void;
   onError: (blockId: string, message: string) => void;
 }
-
-// ─── Internal Types ───────────────────────────────────────────────────────────
 
 /** Decoded meta payload emitted by the shell wrapper at command completion. */
 interface ParsedMeta {
@@ -58,15 +38,11 @@ interface ProcessRecord {
   completed: boolean;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 /**
  * Prefix for the base64-encoded JSON meta line emitted by the shell wrapper.
  * Must match the prefix used in each ShellAdapter.buildWrapperCommand().
  */
 const META_PREFIX = "__FLOW_META__";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
  * Normalise a POSIX-style path (MSYS/Cygwin) to a Windows native path so that
@@ -83,8 +59,6 @@ function normalizeCwd(cwdPath: string): string {
   }
   return cwdPath;
 }
-
-// ─── ExecutionEngine ──────────────────────────────────────────────────────────
 
 export class ExecutionEngine {
   /** Live process registry keyed by blockId. */
@@ -249,8 +223,6 @@ export class ExecutionEngine {
     this.registry.clear();
   }
 
-  // ─── Private Methods ────────────────────────────────────────────────────────
-
   /** Attach data handlers to stdout and stderr streams. */
   private attachStreamHandlers(blockId: string, record: ProcessRecord) {
     record.process.stdout.setEncoding("utf-8");
@@ -385,9 +357,7 @@ export class ExecutionEngine {
   }
 }
 
-// =============================================================================
 // ShellAdapter — per-shell command wrapping and argument building
-// =============================================================================
 
 /**
  * Abstract base for shell-specific command wrapping strategies.
@@ -420,7 +390,7 @@ abstract class ShellAdapter {
   abstract buildWrapperCommand(command: string): string;
 }
 
-// ─── PowerShell (powershell.exe / pwsh.exe) ───────────────────────────────────
+// PowerShell (powershell.exe / pwsh.exe)
 
 class PowerShellAdapter extends ShellAdapter {
   buildWrapperCommand(command: string): string {
@@ -445,7 +415,7 @@ class PowerShellAdapter extends ShellAdapter {
   // The engine appends the wrapped command to whatever baseArgs the webview sends.
 }
 
-// ─── POSIX (bash, zsh, sh, fish, …) ──────────────────────────────────────────
+// POSIX (bash, zsh, sh, fish, …)
 
 class PosixAdapter extends ShellAdapter {
   buildWrapperCommand(command: string): string {
@@ -468,7 +438,7 @@ class PosixAdapter extends ShellAdapter {
   // Launch args (e.g. -c) defined in constant.ts.
 }
 
-// ─── cmd.exe ──────────────────────────────────────────────────────────────────
+// cmd.exe
 
 class CmdAdapter extends ShellAdapter {
   buildWrapperCommand(command: string): string {

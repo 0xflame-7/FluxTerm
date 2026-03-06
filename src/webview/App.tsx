@@ -1,11 +1,3 @@
-// Root notebook application component.
-//
-// Wires all hooks together and passes props down to the InputSection and
-// per-block OutputBlock components. This is the single place where:
-//   - Document preferences (shell, cwd) are derived for the InputSection.
-//   - Block execution is initiated (createBlock → flowService.execute).
-//   - Explicit notebook saves are triggered (saveDocument).
-
 import { useEffect, useRef, useCallback } from "react";
 import { useFlowDocument } from "./hooks/useFlowDocument";
 import { useShellConfig } from "./hooks/useShellConfig";
@@ -73,7 +65,6 @@ export default function App() {
     }
     // Run only once after docContext is first populated (empty cwd means not yet
     // received from extension).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docContext.cwd]);
 
   //  Wire execution events from extension to notebookStore

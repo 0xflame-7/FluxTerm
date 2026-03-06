@@ -7,7 +7,6 @@ interface ColorDef {
 }
 
 const colors: ColorDef[] = [
-  // --- Base ---
   {
     category: "Base",
     name: "Editor Background",
@@ -29,7 +28,7 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-editorWidget-border",
   },
 
-  // --- Input ---
+  // Input
   {
     category: "Input",
     name: "Input Background",
@@ -66,7 +65,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-inputValidation-errorBackground",
   },
 
-  // --- Buttons ---
   {
     category: "Button",
     name: "Button Background",
@@ -88,7 +86,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-button-secondaryBackground",
   },
 
-  // --- Lists & Menus ---
   {
     category: "List/Menu",
     name: "List Hover",
@@ -115,7 +112,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-menu-selectionBackground",
   },
 
-  // --- Status Bar ---
   {
     category: "Status Bar",
     name: "Status Bar Bg",
@@ -137,7 +133,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-statusBarItem-errorBackground",
   },
 
-  // --- Terminal ---
   {
     category: "Terminal",
     name: "Terminal Background",
@@ -169,7 +164,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-terminal-ansiYellow",
   },
 
-  // --- Badges ---
   {
     category: "Badge",
     name: "Badge Background",
@@ -181,7 +175,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-badge-foreground",
   },
 
-  // --- Panel/SideBar ---
   {
     category: "Panel",
     name: "Panel Border",
@@ -198,7 +191,6 @@ const colors: ColorDef[] = [
     vscodeVar: "--vscode-activityBar-background",
   },
 
-  // --- Editor ---
   {
     category: "Editor",
     name: "Selection",

@@ -1,17 +1,3 @@
-// =============================================================================
-// MessageProtocol.ts
-//
-// The strict contract between the extension host and the webview.
-// All messages crossing that boundary must conform to these types.
-//
-// Architecture:
-//   - Extension = pure execution engine + message bridge (no notebook state)
-//   - Webview   = single source of truth for all notebook state
-//   - FlowDocument = full notebook state persisted on explicit user save only
-// =============================================================================
-
-// ─── Output & Block Types ─────────────────────────────────────────────────────
-
 /** A single line of output produced by a running block process. */
 export interface OutputLine {
   /** "stdout" = normal output, "stderr" = error output, "stdin" = echoed input */
@@ -34,7 +20,7 @@ export interface FlowBlock {
   /** The command string the user submitted. */
   command: string;
 
-  // ── Frozen at creation ─────────────────────────────────────────────────────
+  // Frozen at creation
   /** Shell binary path used when this block was created. */
   shell: string;
   /** Working directory at the time this block was created. */
@@ -42,12 +28,12 @@ export interface FlowBlock {
   /** Git branch at the time this block was created. */
   branch: string | null;
 
-  // ── Runtime state ──────────────────────────────────────────────────────────
+  // Runtime state
   status: BlockStatus;
   /** Streamed output lines accumulated during execution. */
   output: OutputLine[];
 
-  // ── Completion metadata (null until block completes) ───────────────────────
+  // Completion metadata (null until block completes)
   /** Process exit code. null while running or if process was killed before exit. */
   exitCode: number | null;
   /** Working directory after the command completed (from sentinel). */
@@ -59,7 +45,7 @@ export interface FlowBlock {
   createdAt: number;
 }
 
-// ─── Runtime Context ──────────────────────────────────────────────────────────
+// Runtime Context
 
 /**
  * Global runtime context for the notebook session.
@@ -72,8 +58,6 @@ export interface FlowContext {
   shell: string | null;
   connection: "local" | "remote";
 }
-
-// ─── Document (persisted to disk on explicit save) ────────────────────────────
 
 /**
  * The full notebook state serialised to the .flow file.
@@ -93,8 +77,7 @@ export interface FlowDocument {
   branch?: string;
 }
 
-// ─── Shell Config ─────────────────────────────────────────────────────────────
-
+// Shell Config
 export type ShellProfile = {
   id: string;
   label: string;
@@ -104,17 +87,16 @@ export type ShellProfile = {
   icon?: string;
 };
 
+/** Shell launch args, resolved and stored alongside the path. */
 export type ResolvedShell = {
   id: string;
   label: string;
   path: string;
-  /** Shell launch args, resolved and stored alongside the path. */
   args: string[];
   icon?: string;
 };
 
-// ─── Webview → Extension Messages ────────────────────────────────────────────
-
+// Webview → Extension Messages
 export type WebviewMessage =
   /** Request initial document state + live context from extension. */
   | { type: "init" }
@@ -144,8 +126,7 @@ export type WebviewMessage =
   /** Kill the process associated with a running block. */
   | { type: "killBlock"; blockId: string };
 
-// ─── Extension → Webview Messages ────────────────────────────────────────────
-
+// Extension → Webview Messages
 export type ExtMessage =
   /** Initial state: saved document + live context (cwd, branch). */
   | { type: "init"; document: FlowDocument; context: FlowContext }

@@ -1,6 +1,3 @@
-// OutputArea.tsx — Renders a block's streamed output lines with ANSI support
-// and optional search-query highlighting.
-
 import React from "react";
 import Ansi from "ansi-to-react";
 import { FlowBlock, OutputLine } from "../../../types/MessageProtocol";
@@ -9,8 +6,6 @@ interface OutputAreaProps {
   block: FlowBlock;
   searchQuery: string;
 }
-
-// ─── Line renderer ────────────────────────────────────────────────────────────
 
 interface LineProps {
   line: OutputLine;
@@ -44,8 +39,6 @@ const OutputLine: React.FC<LineProps> = ({ line, highlighted }) => {
     </div>
   );
 };
-
-// ─── OutputArea ───────────────────────────────────────────────────────────────
 
 export const OutputArea: React.FC<OutputAreaProps> = ({
   block,

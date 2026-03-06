@@ -1,5 +1,5 @@
 import { shell } from "../../utils/constant";
-import { ResolvedShell, ShellProfile } from "../../types/MessageProtocol";
+import { ResolvedShell } from "../../types/MessageProtocol";
 import { exec } from "child_process";
 import { promisify } from "util";
 

@@ -1,13 +1,4 @@
-// =============================================================================
-// ExecutionEngine.test.ts
-//
-// Unit tests for ExecutionEngine using Vitest.
-// No VS Code host required — the engine only uses Node's child_process.
-//
-// Run:  pnpm test:engine
-// =============================================================================
-
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import * as os from "os";
 import * as path from "path";
 import * as fs from "fs";
@@ -18,8 +9,6 @@ import {
   ExecutionCallbacks,
 } from "../extension/services/ExecutionEngine";
 import { OutputLine } from "../types/MessageProtocol";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const IS_WIN = process.platform === "win32";
 
@@ -68,11 +57,8 @@ function runBlock(
   });
 }
 
-// ─── Tests ────────────────────────────────────────────────────────────────────
-
 describe("ExecutionEngine", () => {
-  // ── 1. Basic stdout streaming ────────────────────────────────────────────────
-
+  // Basic stdout streaming
   describe("stdout streaming", () => {
     it("streams stdout lines to onStream", async () => {
       const cmd = IS_WIN ? "Write-Output 'hello'" : "echo hello";
@@ -103,8 +89,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 2. stderr streaming ──────────────────────────────────────────────────────
-
+  // stderr streaming
   describe("stderr streaming", () => {
     it("streams stderr to onStream with type=stderr", async () => {
       const cmd = IS_WIN
@@ -120,8 +105,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 3. Exit code capture ─────────────────────────────────────────────────────
-
+  // Exit code capture
   describe("exit codes", () => {
     it("captures exit code 0 for successful commands", async () => {
       const cmd = IS_WIN ? "exit 0" : "true";
@@ -147,8 +131,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 4. finalCwd — cd must update the captured cwd (the bug we fixed) ────────
-
+  // finalCwd — cd must update the captured cwd (the bug we fixed)
   describe("finalCwd after cd", () => {
     it("captures the new cwd after cd", async () => {
       const targetDir = os.homedir();
@@ -197,8 +180,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 5. Sentinel parsing — finalCwd and finalBranch ──────────────────────────
-
+  // Sentinel parsing — finalCwd and finalBranch
   describe("meta sentinel", () => {
     it("captures finalCwd and finalBranch for a successful command", async () => {
       // Run a simple command, rely on the real ShellAdapter to inject the sentinel
@@ -217,7 +199,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 6. stdin input / writeInput echo ────────────────────────────────────────
+  // stdin input / writeInput echo
 
   describe("writeInput", () => {
     it("sends text to stdin and echoes it with type=stdin", () => {
@@ -256,8 +238,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 7. Kill process ──────────────────────────────────────────────────────────
-
+  // Kill process
   describe("killBlock", () => {
     it("kills a running process and emits status=killed", () => {
       return new Promise<void>((resolve, reject) => {
@@ -298,8 +279,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 8. Duplicate execute guard ────────────────────────────────────────────────
-
+  // Duplicate execute guard
   describe("duplicate execute guard", () => {
     it("ignores a second execute call for the same blockId while running", () => {
       return new Promise<void>((resolve, reject) => {
@@ -333,8 +313,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 9. Concurrent blocks ──────────────────────────────────────────────────────
-
+  // Concurrent blocks
   describe("concurrent blocks", () => {
     it("runs two blocks concurrently and completes both independently", async () => {
       const results: Record<string, BlockCompletePayload> = {};
@@ -342,7 +321,9 @@ describe("ExecutionEngine", () => {
       await new Promise<void>((resolve) => {
         let done = 0;
         const check = () => {
-          if (++done === 2) resolve();
+          if (++done === 2) {
+            resolve();
+          }
         };
 
         const callbacks: ExecutionCallbacks = {
@@ -367,8 +348,7 @@ describe("ExecutionEngine", () => {
     });
   });
 
-  // ── 10. dispose ───────────────────────────────────────────────────────────────
-
+  // dispose
   describe("dispose", () => {
     it("dispose kills all running processes without throwing", () => {
       return new Promise<void>((resolve) => {

@@ -1,19 +1,3 @@
-// =============================================================================
-// useFlowDocument.ts
-//
-// Manages document-level state: the saved FlowDocument and the live FlowContext
-// received from the extension on init.
-//
-// Responsibilities:
-//   - Request initial state from the extension on mount.
-//   - Store the document preferences (shell, cwd, branch) and saved blocks.
-//   - Store the live context (working directory and git branch detected by the
-//     extension at open time).
-//   - Provide updateDocument() for immediate preference changes that should
-//     auto-persist (e.g. shell selection).
-//   - Provide saveDocument() for the explicit notebook save action.
-// =============================================================================
-
 import { useEffect, useState, useCallback } from "react";
 import { produce } from "immer";
 import { flowService } from "../services/FlowService";
@@ -48,6 +32,19 @@ export interface UseFlowDocumentReturn {
   saveDocument: (blocks: FlowBlock[], runtimeContext: FlowContext) => void;
 }
 
+/**
+ * Manages document-level state: the saved FlowDocument and the live FlowContext
+ * received from the extension on init.
+ *
+ * Responsibilities:
+ *   - Request initial state from the extension on mount.
+ *   - Store the document preferences (shell, cwd, branch) and saved blocks.
+ *   - Store the live context (working directory and git branch detected by the
+ *     extension at open time).
+ *   - Provide updateDocument() for immediate preference changes that should
+ *     auto-persist (e.g. shell selection).
+ *   - Provide saveDocument() for the explicit notebook save action.
+ */
 export const useFlowDocument = (): UseFlowDocumentReturn => {
   const [document, setDocument] = useState<FlowDocument>({});
   const [context, setContext] = useState<FlowContext>(DEFAULT_CONTEXT);

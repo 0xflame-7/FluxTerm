@@ -1,6 +1,3 @@
-// barrel index — re-export everything from the block/ directory so
-// consumers can import from "components/block" without knowing internals.
-
 export { OutputBlock } from "./OutputBlock";
 export type { OutputBlockProps } from "./OutputBlock";
 

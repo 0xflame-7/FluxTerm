@@ -1,2 +1,2 @@
-// barrel index for components/common/
 export { Tooltip } from "./Tooltip";
+export { ColorBlock } from "./ColorBlock";

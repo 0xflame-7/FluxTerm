@@ -1,19 +1,3 @@
-// =============================================================================
-// FlowDocumentSession.ts
-//
-// Manages the lifecycle of a single .flow document editor panel.
-//
-// Responsibilities:
-//   - Set up the webview and handle all incoming messages from it.
-//   - Delegate block execution to the ExecutionEngine.
-//   - Emit structured messages back to the webview via a typed `post()` helper.
-//   - Detect the initial live context (cwd, git branch) before sending init.
-//   - Persist FlowDocument to disk only when the webview sends an 'update'.
-//
-// This class deliberately holds NO notebook state (blocks, runtimeContext).
-// All notebook state lives in the webview's notebookStore.
-// =============================================================================
-
 import * as vscode from "vscode";
 import * as path from "path";
 import { exec } from "child_process";
@@ -71,8 +55,7 @@ export class FlowDocumentSession {
     this.setupMessageHandlers();
   }
 
-  // ─── Webview Message Handling ───────────────────────────────────────────────
-
+  // Webview Message Handling
   private setupMessageHandlers() {
     this.panel.webview.onDidReceiveMessage(
       async (message: WebviewMessage) => {
@@ -81,7 +64,6 @@ export class FlowDocumentSession {
         }
 
         switch (message.type) {
-          // ── Init ─────────────────────────────────────────────────────────────
           case "init": {
             // Resolve the live context asynchronously so we can provide
             // the real cwd and git branch rather than stale or empty values.
@@ -102,7 +84,7 @@ export class FlowDocumentSession {
             break;
           }
 
-          // ── Explicit save ────────────────────────────────────────────────────
+          // Save Explict
           case "update":
             // Enqueue so concurrent saves are serialised and never interleaved.
             this.enqueue(async () => {
@@ -111,7 +93,7 @@ export class FlowDocumentSession {
             });
             break;
 
-          // ── Shell config ─────────────────────────────────────────────────────
+          // Shell config
           case "shellConfig":
             this.enqueue(async () => {
               const shells = await ShellResolver.resolve();
@@ -119,7 +101,7 @@ export class FlowDocumentSession {
             });
             break;
 
-          // ── Block execution ───────────────────────────────────────────────────
+          // Block execution
           case "execute": {
             const { blockId, command, shell, args, cwd } = message;
             Ext.info(`[Session] Execute block ${blockId}: ${command}`);
@@ -129,7 +111,7 @@ export class FlowDocumentSession {
             break;
           }
 
-          // ── Stdin ─────────────────────────────────────────────────────────────
+          // Stdin
           case "input": {
             const { blockId, text } = message;
             Ext.info(`[Session] Input for block ${blockId}`);
@@ -137,7 +119,7 @@ export class FlowDocumentSession {
             break;
           }
 
-          // ── Kill ──────────────────────────────────────────────────────────────
+          // Kill
           case "killBlock": {
             const { blockId } = message;
             Ext.info(`[Session] Kill block ${blockId}`);
@@ -145,7 +127,7 @@ export class FlowDocumentSession {
             break;
           }
 
-          // ── Log relay ─────────────────────────────────────────────────────────
+          // Log relay
           case "log":
             Ext.info(message.message);
             break;
@@ -252,8 +234,6 @@ export class FlowDocumentSession {
     }
   }
 
-  // ─── Message Posting ─────────────────────────────────────────────────────────
-
   /**
    * Post a typed message to the webview.
    * Guards against posting after the panel has been disposed.
@@ -263,8 +243,6 @@ export class FlowDocumentSession {
       this.panel.webview.postMessage(message);
     }
   }
-
-  // ─── Lifecycle ───────────────────────────────────────────────────────────────
 
   public dispose() {
     if (this.isDisposed) {

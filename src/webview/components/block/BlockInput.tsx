@@ -1,5 +1,3 @@
-// BlockInput.tsx — Per-block stdin input, shown only while the block is running.
-
 import React, { useState } from "react";
 import { flowService } from "../../services/FlowService";
 

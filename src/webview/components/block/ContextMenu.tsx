@@ -1,10 +1,5 @@
-// ContextMenu.tsx — Right-click / "more" action menu for a block.
-// Includes MenuItem and MenuDivider as co-located helpers.
-
 import React, { useRef, useEffect } from "react";
 import { FlowBlock } from "../../../types/MessageProtocol";
-
-// ─── MenuItem ─────────────────────────────────────────────────────────────────
 
 interface MenuItemProps {
   icon: string;
@@ -60,8 +55,6 @@ export const MenuItem: React.FC<MenuItemProps> = ({
   </button>
 );
 
-// ─── MenuDivider ──────────────────────────────────────────────────────────────
-
 export const MenuDivider: React.FC = () => (
   <div
     style={{
@@ -72,8 +65,6 @@ export const MenuDivider: React.FC = () => (
     }}
   />
 );
-
-// ─── ContextMenu ──────────────────────────────────────────────────────────────
 
 export interface ContextMenuProps {
   block: FlowBlock;

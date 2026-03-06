@@ -1,5 +1,3 @@
-// ToolbarButton.tsx — Icon button for the block toolbar.
-
 import React, { forwardRef } from "react";
 
 export interface ToolbarButtonProps {

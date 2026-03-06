@@ -1,12 +1,8 @@
-// =============================================================================
-// useBlockExecution.ts
-//
 // Subscribes to execution-related messages from the extension and routes
 // them to the appropriate notebookStore mutations.
 //
 // This hook is the single place that translates raw extension messages into
 // typed state transitions. It has no local state of its own.
-// =============================================================================
 
 import { useEffect } from "react";
 import { flowService } from "../services/FlowService";

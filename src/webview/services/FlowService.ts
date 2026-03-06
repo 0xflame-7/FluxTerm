@@ -1,10 +1,3 @@
-// =============================================================================
-// FlowService.ts
-//
-// Singleton bridge between the React webview and the VS Code extension host.
-// All messages crossing the boundary must be typed against MessageProtocol.ts.
-// =============================================================================
-
 import { FlowDocument, WebviewMessage } from "../../types/MessageProtocol";
 import { Web } from "../../utils/logger";
 
@@ -16,6 +9,10 @@ interface VsCodeApi {
 
 declare const acquireVsCodeApi: () => VsCodeApi;
 
+/**
+ * Singleton bridge between the React webview and the VS Code extension host.
+ * All messages crossing the boundary must be typed against MessageProtocol.ts.
+ */
 class FlowService {
   private static instance: FlowService;
   private vscode: VsCodeApi;
@@ -25,7 +22,9 @@ class FlowService {
     this.vscode = acquireVsCodeApi();
     Web.setVSCode(this.vscode);
 
-    // Route all extension messages to registered listeners.
+    /**
+     * Route all extension messages to registered listeners.
+     */
     window.addEventListener("message", (event) => {
       this.notifyListeners(event.data);
     });
@@ -38,8 +37,6 @@ class FlowService {
     return FlowService.instance;
   }
 
-  // ─── Pub/Sub ────────────────────────────────────────────────────────────────
-
   /** Register a listener for extension messages. Returns an unsubscribe fn. */
   public subscribe(listener: (message: any) => void): () => void {
     this.listeners.add(listener);
@@ -49,8 +46,6 @@ class FlowService {
   private notifyListeners(message: any) {
     this.listeners.forEach((l) => l(message));
   }
-
-  // ─── Outbound Messages ──────────────────────────────────────────────────────
 
   /** Request the initial document state and live context from the extension. */
   public init(): void {
@@ -73,8 +68,12 @@ class FlowService {
 
   /**
    * Start executing a command in a new isolated shell process.
+   * @param blockId - The ID of the block to execute.
+   * @param command - The command to execute.
+   * @param shell - The shell to use.
    * @param args - Shell launch args from ResolvedShell.args (sourced from constant.ts).
    *               The engine appends the wrapped command after these.
+   * @param cwd - The current working directory.
    */
   public execute(
     blockId: string,

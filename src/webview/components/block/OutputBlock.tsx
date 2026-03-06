@@ -1,13 +1,3 @@
-// OutputBlock.tsx — Container for a single executed notebook block.
-//
-// Composes the focused sub-components from this directory:
-//   StatusIcon, ToolbarButton, ContextMenu, BlockInput, SearchBar, OutputArea
-//
-// Responsibilities of this file:
-//   - Layout and visual state (running accent stripe, hover border)
-//   - Toolbar visibility and state (showSearch, showMenu)
-//   - Action handlers (copy, rerun, kill, delete) delegated upward
-
 import React, { useState, useRef, useCallback } from "react";
 import { FlowBlock } from "../../../types/MessageProtocol";
 import { flowService } from "../../services/FlowService";
@@ -17,8 +7,6 @@ import { ContextMenu } from "./ContextMenu";
 import { BlockInput } from "./BlockInput";
 import { SearchBar } from "./SearchBar";
 import { OutputArea } from "./OutputArea";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(ts: number): string {
   return new Date(ts).toLocaleDateString("en-US", {
@@ -32,8 +20,6 @@ function formatDate(ts: number): string {
 function shortenPath(p: string): string {
   return p.replace(/\\/g, "/");
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export interface OutputBlockProps {
   block: FlowBlock;
@@ -79,8 +65,6 @@ export const OutputBlock: React.FC<OutputBlockProps> = ({
     onDelete(block.id);
     setShowMenu(false);
   }, [block.id, onDelete]);
-
-  // ── Visual state based on execution status ────────────────────────────────
 
   const containerStyle: React.CSSProperties = {
     position: "relative",
@@ -129,7 +113,7 @@ export const OutputBlock: React.FC<OutputBlockProps> = ({
         />
       )}
 
-      {/* ── Toolbar ── */}
+      {/* Toolbar */}
       <div
         className="block-toolbar"
         style={{
@@ -192,7 +176,7 @@ export const OutputBlock: React.FC<OutputBlockProps> = ({
         </div>
       </div>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -221,7 +205,7 @@ export const OutputBlock: React.FC<OutputBlockProps> = ({
         )}
       </div>
 
-      {/* ── Command row ── */}
+      {/* Command row */}
       <div
         style={{
           display: "flex",
@@ -286,7 +270,7 @@ export const OutputBlock: React.FC<OutputBlockProps> = ({
         )}
       </div>
 
-      {/* ── Search bar ── */}
+      {/* Search bar */}
       {showSearch && (
         <div style={{ marginTop: "8px", paddingLeft: indent }}>
           <SearchBar
@@ -301,12 +285,12 @@ export const OutputBlock: React.FC<OutputBlockProps> = ({
         </div>
       )}
 
-      {/* ── Output ── */}
+      {/* Output */}
       <div style={{ paddingLeft: indent }}>
         <OutputArea block={block} searchQuery={searchQuery} />
       </div>
 
-      {/* ── Stdin input (running only) ── */}
+      {/* Stdin input (running only) */}
       {isRunning && (
         <div style={{ paddingLeft: indent }}>
           <BlockInput blockId={block.id} />

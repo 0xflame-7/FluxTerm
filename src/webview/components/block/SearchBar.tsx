@@ -1,5 +1,3 @@
-// SearchBar.tsx — Output search input with match count, shown inside a block.
-
 import React from "react";
 
 interface SearchBarProps {

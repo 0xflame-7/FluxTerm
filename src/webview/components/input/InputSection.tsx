@@ -1,6 +1,3 @@
-// InputSection.tsx — Command input bar with context display and shell picker.
-// Moved from components/InputBlock.tsx → components/input/InputSection.tsx.
-
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { FlowContext, ResolvedShell } from "../../../types/MessageProtocol";
@@ -16,6 +13,14 @@ interface InputSectionProps {
   isRunning?: boolean;
 }
 
+/**
+ * Input section of the notebook.
+ *
+ * Responsibilities:
+ *   - Manage input state and run commands.
+ *   - Display context information.
+ *   - Handle shell selection and cwd changes.
+ */
 export const InputSection: React.FC<InputSectionProps> = ({
   context,
   onRun,

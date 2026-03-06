@@ -1,6 +1,3 @@
-// Tooltip.tsx — Reusable tooltip component, renders via a portal.
-// Moved to common/ as it is shared by InputSection and potentially other components.
-
 import React, { useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 

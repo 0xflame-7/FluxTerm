@@ -1,5 +1,3 @@
-// StatusIcon.tsx — Visual status indicator for a block's execution state.
-
 import React from "react";
 import { BlockStatus } from "../../../types/MessageProtocol";
 
