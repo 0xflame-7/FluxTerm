@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- Added "Current Application State and Architecture Overview" to `docs/dev.md` detailing the webview, orchestration, and execution engine architecture.
 - Added `vitest.config.mts` and `vitest.config.webview.mts` to support webview testing using Vitest as per the project rules
 
 ### Changed
