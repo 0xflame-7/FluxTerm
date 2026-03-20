@@ -1,4 +1,4 @@
-import { FlowDocument, WebviewMessage } from "../../types/MessageProtocol";
+import { FlowDocument, ResolvedShell, WebviewMessage } from "../../types/MessageProtocol";
 import { Web } from "../../utils/logger";
 
 interface VsCodeApi {
@@ -70,16 +70,14 @@ class FlowService {
    * Start executing a command in a new isolated shell process.
    * @param blockId - The ID of the block to execute.
    * @param command - The command to execute.
-   * @param shell - The shell to use.
-   * @param args - Shell launch args from ResolvedShell.args (sourced from constant.ts).
-   *               The engine appends the wrapped command after these.
-   * @param cwd - The current working directory.
+   * @param shell   - The fully resolved shell object (path + args) to use.
+   *                  The engine appends the wrapped command after shell.args.
+   * @param cwd    - The current working directory.
    */
   public execute(
     blockId: string,
     command: string,
-    shell: string,
-    args: string[],
+    shell: ResolvedShell,
     cwd: string,
   ): void {
     this.vscode.postMessage({
@@ -87,7 +85,6 @@ class FlowService {
       blockId,
       command,
       shell,
-      args,
       cwd,
     });
   }

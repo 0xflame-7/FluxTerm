@@ -7,7 +7,7 @@ import { Tooltip } from "../common/Tooltip";
 interface InputSectionProps {
   context: FlowContext;
   onRun: (cmd: string) => void;
-  onShellChange: (shell: string) => void;
+  onShellChange: (shell: ResolvedShell) => void;
   onCwdChange?: (cwd: string) => void;
   availableShells: ResolvedShell[];
   isRunning?: boolean;
@@ -83,8 +83,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
 
   const getShellDisplay = () => {
     if (!context.shell) return "No Shell";
-    const shellObj = availableShells.find((s) => s.path === context.shell);
-    return shellObj ? shellObj.label : getShellName(context.shell);
+    return context.shell.label;
   };
 
   const toggleMenu = () => {
@@ -221,8 +220,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                     <>
                       <span
                         className={`codicon ${
-                          availableShells.find((s) => s.path === context.shell)
-                            ?.icon || "codicon-terminal"
+                          context.shell?.icon || "codicon-terminal"
                         }`}
                         style={{ fontSize: "16px" }}
                       />
@@ -262,7 +260,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                   className="rounded-sm py-1"
                 >
                   {availableShells.map((option) => {
-                    const isSelected = context.shell === option.path;
+                    const isSelected = context.shell?.id === option.id;
                     return (
                       <Tooltip
                         key={option.path}
@@ -274,7 +272,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                             Web.info(
                               `[InputSection] Selected shell: ${option.label} -> ${option.path}`,
                             );
-                            onShellChange(option.path);
+                            onShellChange(option);
                             setShowShellMenu(false);
                           }}
                           style={{

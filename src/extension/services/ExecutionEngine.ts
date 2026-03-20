@@ -1,5 +1,5 @@
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
-import { OutputLine } from "../../types/MessageProtocol";
+import { OutputLine, ResolvedShell } from "../../types/MessageProtocol";
 import { Ext } from "../../utils/logger";
 
 export interface BlockCompletePayload {
@@ -73,20 +73,14 @@ export class ExecutionEngine {
    *
    * @param blockId  - Unique identifier for the block.
    * @param command  - Raw command string typed by the user.
-   * @param shellPath - Absolute path to the shell binary.
+   * @param shell    - Resolved shell object (path + args). The wrapped command
+   *                   is appended after shell.args at spawn time.
    * @param cwd      - Working directory for the process.
    */
   execute(
     blockId: string,
     command: string,
-    shellPath: string,
-    /**
-     * Launch args for the shell binary, passed in from the webview.
-     * These originate from `constant.ts` (ShellProfile.args) and are
-     * resolved by ShellResolver into ResolvedShell.args, then sent
-     * with the execute message. The wrapped command is appended last.
-     */
-    baseArgs: string[],
+    shell: ResolvedShell,
     cwd: string,
   ): void {
     if (this.registry.has(blockId)) {
@@ -94,19 +88,19 @@ export class ExecutionEngine {
       return;
     }
 
-    // Build the wrapper command (sentinel injection); args come from the caller
-    const adapter = ShellAdapter.create(shellPath);
+    // Build the wrapper command (sentinel injection)
+    const adapter = ShellAdapter.create(shell.path);
     const wrappedCommand = adapter.buildWrapperCommand(command);
     // Append the wrapped command after the base args (e.g. [..."-Command", wrappedCommand])
-    const args = [...baseArgs, wrappedCommand];
+    const args = [...shell.args, wrappedCommand];
 
     Ext.info(
-      `[ExecutionEngine] Spawning block ${blockId}: ${shellPath} ${args.slice(0, -1).join(" ")} <command>`,
+      `[ExecutionEngine] Spawning block ${blockId}: ${shell.path} ${args.slice(0, -1).join(" ")} <command>`,
     );
 
     let proc: ChildProcessWithoutNullStreams;
     try {
-      proc = spawn(shellPath, args, {
+      proc = spawn(shell.path, args, {
         cwd: normalizeCwd(cwd),
         stdio: "pipe",
         windowsHide: true,

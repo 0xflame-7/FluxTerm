@@ -6,7 +6,7 @@ import { useBlockExecution } from "./hooks/useBlockExecution";
 import { InputSection } from "./components/input";
 import { OutputBlock } from "./components/block";
 import { flowService } from "./services/FlowService";
-import { FlowContext } from "../types/MessageProtocol";
+import { FlowContext, ResolvedShell } from "../types/MessageProtocol";
 
 const ANIM_CSS = `
 @keyframes spin {
@@ -31,7 +31,7 @@ export default function App() {
     updateDocument,
     saveDocument,
   } = useFlowDocument();
-  const { shells } = useShellConfig();
+  const { shells, selectedShell, setSelectedShell } = useShellConfig();
 
   const {
     blocks,
@@ -51,6 +51,25 @@ export default function App() {
   useEffect(() => {
     setRuntimeContext(docContext);
   }, [docContext, setRuntimeContext]);
+
+  // After shells are resolved, restore the saved shell preference (stored as id
+  // in FlowDocument.shell). The webview matches it against the live shell list.
+  useEffect(() => {
+    if (shells.length === 0) {
+      return;
+    }
+    if (document.shell) {
+      const saved = shells.find((s) => s.id === document.shell);
+      if (saved) {
+        setSelectedShell(saved);
+        return;
+      }
+    }
+    // No preference or no match — default to the first available shell.
+    if (!selectedShell) {
+      setSelectedShell(shells[0]);
+    }
+  }, [shells, document.shell]);
 
   // If the saved document contains blocks from a previous session, restore them.
   useEffect(() => {
@@ -84,7 +103,7 @@ export default function App() {
   const displayContext: FlowContext = {
     cwd: runtimeContext.cwd || document.cwd || "",
     branch: runtimeContext.branch ?? document.branch ?? null,
-    shell: document.shell ?? runtimeContext.shell ?? null,
+    shell: selectedShell,
     connection: runtimeContext.connection ?? "local",
   };
 
@@ -93,18 +112,13 @@ export default function App() {
     if (!shell) {
       return;
     }
-    // Look up the resolved shell to get its args (defined in constant.ts,
-    // resolved by ShellResolver, carried in ResolvedShell.args).
-    const resolvedShell = shells.find((s) => s.path === shell);
-    const shellArgs = resolvedShell?.args ?? [];
-
     const blockId = createBlock(
       cmd,
       shell,
       displayContext.cwd,
       displayContext.branch ?? null,
     );
-    flowService.execute(blockId, cmd, shell, shellArgs, displayContext.cwd);
+    flowService.execute(blockId, cmd, shell, displayContext.cwd);
   };
 
   const handleReRun = (blockId: string) => {
@@ -112,21 +126,18 @@ export default function App() {
     if (!orig) {
       return;
     }
-    // Resolve args from the shell list for the block's frozen shell path.
-    const resolvedShell = shells.find((s) => s.path === orig.shell);
-    const shellArgs = resolvedShell?.args ?? [];
-
     const newId = reRunBlock(blockId);
     if (!newId) {
       return;
     }
-    flowService.execute(newId, orig.command, orig.shell, shellArgs, orig.cwd);
+    flowService.execute(newId, orig.command, orig.shell, orig.cwd);
   };
 
-  const handleShellChange = (shellPath: string) => {
-    // Auto-persist the shell preference immediately
+  const handleShellChange = (shell: ResolvedShell) => {
+    setSelectedShell(shell);
+    // Persist only the shell id so the preference survives reload.
     updateDocument((draft) => {
-      draft.shell = shellPath;
+      draft.shell = shell.id;
     });
   };
 

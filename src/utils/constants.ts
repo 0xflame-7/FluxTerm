@@ -1,6 +1,6 @@
 import { ShellProfile } from "../types/MessageProtocol";
 
-export const shell: ShellProfile[] = [
+export const SHELL_PROFILES: ShellProfile[] = [
   {
     id: "cmd",
     label: "Command Prompt",

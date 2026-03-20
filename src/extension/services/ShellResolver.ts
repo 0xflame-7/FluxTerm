@@ -1,4 +1,4 @@
-import { shell } from "../../utils/constant";
+import { SHELL_PROFILES } from "../../utils/constants";
 import { ResolvedShell } from "../../types/MessageProtocol";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -12,7 +12,7 @@ export class ShellResolver {
 
     const results: ResolvedShell[] = [];
 
-    for (const profile of shell) {
+    for (const profile of SHELL_PROFILES) {
       try {
         const command = `${resolver} ${profile.command}`;
 

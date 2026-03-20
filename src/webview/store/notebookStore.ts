@@ -15,6 +15,7 @@ import {
   BlockStatus,
   FlowContext,
   OutputLine,
+  ResolvedShell,
 } from "../../types/MessageProtocol";
 import { generateId } from "../../utils/helper";
 
@@ -32,7 +33,7 @@ export interface UseNotebookReturn {
   runtimeContext: FlowContext;
   createBlock: (
     command: string,
-    shell: string,
+    shell: ResolvedShell,
     cwd: string,
     branch: string | null,
   ) => string;
@@ -104,7 +105,7 @@ export function useNotebook(
   const createBlock = useCallback(
     (
       command: string,
-      shell: string,
+      shell: ResolvedShell,
       cwd: string,
       branch: string | null,
     ): string => {

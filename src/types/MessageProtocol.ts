@@ -21,8 +21,8 @@ export interface FlowBlock {
   command: string;
 
   // Frozen at creation
-  /** Shell binary path used when this block was created. */
-  shell: string;
+  /** Resolved shell used when this block was created (path + args frozen together). */
+  shell: ResolvedShell;
   /** Working directory at the time this block was created. */
   cwd: string;
   /** Git branch at the time this block was created. */
@@ -55,7 +55,8 @@ export interface FlowBlock {
 export interface FlowContext {
   cwd: string;
   branch: string | null;
-  shell: string | null;
+  /** The currently selected resolved shell, or null if not yet chosen. */
+  shell: ResolvedShell | null;
   connection: "local" | "remote";
 }
 
@@ -111,14 +112,13 @@ export type WebviewMessage =
       type: "execute";
       blockId: string;
       command: string;
-      /** Full path to the shell binary. */
-      shell: string;
       /**
-       * Launch args for the shell binary, sourced from constant.ts via
-       * ShellResolver → ResolvedShell.args → webview → here.
-       * The engine appends the wrapped command as the final argument.
+       * The fully resolved shell object (path + args) selected by the user.
+       * Resolved by ShellResolver on the extension side and sent to the webview
+       * via `shellList`. The webview sends the entire object back here — the
+       * engine consumes shell.path and shell.args directly.
        */
-      args: string[];
+      shell: ResolvedShell;
       cwd: string;
     }
   /** Send user input to a running block's stdin. */

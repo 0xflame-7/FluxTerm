@@ -6,6 +6,25 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+- Added `vitest.config.mts` and `vitest.config.webview.mts` to support webview testing using Vitest as per the project rules
+
+### Changed
+
+- **Shell architecture refactor** — `ResolvedShell` is now the single runtime shell object end-to-end
+  - `FlowBlock.shell`: `string` (path) → `ResolvedShell` (full object frozen at block creation)
+  - `FlowContext.shell`: `string | null` → `ResolvedShell | null`
+  - `WebviewMessage.execute`: removed separate `args: string[]` field; `shell: ResolvedShell` carries both path and args
+  - `ExecutionEngine.execute()`: signature from `(shellPath, baseArgs, …)` → `(shell: ResolvedShell, …)`
+  - `FlowService.execute()`: signature from `(shell: string, args: string[], …)` → `(shell: ResolvedShell, …)`
+  - `notebookStore.createBlock()`: `shell` param is now `ResolvedShell`
+  - `App.tsx`: removed `.find()` lookups to recover args; passes full `ResolvedShell` everywhere
+  - `InputSection.tsx`: `onShellChange` callback now passes the full `ResolvedShell` instead of a path string
+  - `FlowDocument.shell` remains `string` (shell `id`) for JSON serialization; webview matches it to the live shell list on load
+  - `FlowDocumentSession`: extension send `shell: null` in init context; webview restores selection from saved `id` + shell list
+- Renamed `src/utils/constant.ts` -> `src/utils/constants.ts` adhering to the rule that any source of truth must be in `constants.ts`
+
 ## [0.0.1] - 2026-02-22
 
 ### Added

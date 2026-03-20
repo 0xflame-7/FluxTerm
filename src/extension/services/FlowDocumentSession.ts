@@ -74,8 +74,10 @@ export class FlowDocumentSession {
             const context: FlowContext = {
               cwd: liveCwd,
               branch: liveBranch,
-              // Prefer the shell preference stored in the document, if any.
-              shell: savedDoc.shell ?? null,
+              // The extension only knows the saved shell id (a string). The
+              // webview is responsible for matching FlowDocument.shell against
+              // the live shellList to restore the selected ResolvedShell.
+              shell: null,
               connection: "local",
             };
 
@@ -103,11 +105,10 @@ export class FlowDocumentSession {
 
           // Block execution
           case "execute": {
-            const { blockId, command, shell, args, cwd } = message;
+            const { blockId, command, shell, cwd } = message;
             Ext.info(`[Session] Execute block ${blockId}: ${command}`);
-            // Args originate from constant.ts, resolved via ShellResolver,
-            // sent by the webview — the engine appends the wrapped command.
-            this.engine.execute(blockId, command, shell, args, cwd);
+            // shell is a ResolvedShell object (path + args) — passed straight to engine.
+            this.engine.execute(blockId, command, shell, cwd);
             break;
           }
 

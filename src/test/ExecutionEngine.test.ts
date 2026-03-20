@@ -8,17 +8,19 @@ import {
   BlockCompletePayload,
   ExecutionCallbacks,
 } from "../extension/services/ExecutionEngine";
-import { OutputLine } from "../types/MessageProtocol";
+import { OutputLine, ResolvedShell } from "../types/MessageProtocol";
 
 const IS_WIN = process.platform === "win32";
 
-/** Shell info for the current platform. */
-const SHELL = IS_WIN
+/** Resolved shell for the current platform (no id/label needed at runtime, but typed for consistency). */
+const SHELL: ResolvedShell = IS_WIN
   ? {
+      id: "powershell",
+      label: "PowerShell",
       path: "powershell.exe",
       args: ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"],
     }
-  : { path: "/bin/bash", args: ["-c"] };
+  : { id: "bash", label: "Bash", path: "/usr/bin/bash", args: ["-c"] };
 
 const CWD = os.tmpdir();
 
@@ -53,7 +55,7 @@ function runBlock(
 
     const engine = new ExecutionEngine(callbacks);
     const blockId = "test-block";
-    engine.execute(blockId, command, SHELL.path, SHELL.args, cwd);
+    engine.execute(blockId, command, SHELL, cwd);
   });
 }
 
@@ -228,7 +230,7 @@ describe("ExecutionEngine", () => {
 
         // Use cat (reads stdin until EOF) — write a line and then close stdin
         const cmd = IS_WIN ? "$input | ForEach-Object { $_ }" : "cat";
-        engine.execute("stdin-test", cmd, SHELL.path, SHELL.args, CWD);
+        engine.execute("stdin-test", cmd, SHELL, CWD);
 
         setTimeout(() => {
           engine.writeInput("stdin-test", "hello-stdin");
@@ -261,7 +263,7 @@ describe("ExecutionEngine", () => {
 
         // Long-running sleep that we will kill
         const cmd = IS_WIN ? "Start-Sleep -Seconds 30" : "sleep 30";
-        engine.execute("kill-test", cmd, SHELL.path, SHELL.args, CWD);
+        engine.execute("kill-test", cmd, SHELL, CWD);
 
         // Kill after a brief delay so the process is definitely running
         setTimeout(() => engine.killBlock("kill-test"), 400);
@@ -306,9 +308,9 @@ describe("ExecutionEngine", () => {
           ? "Start-Sleep -Milliseconds 200; Write-Output 'done'"
           : "sleep 0.2 && echo done";
 
-        engine.execute("dup-test", cmd, SHELL.path, SHELL.args, CWD);
+        engine.execute("dup-test", cmd, SHELL, CWD);
         // Second call should be silently ignored
-        engine.execute("dup-test", cmd, SHELL.path, SHELL.args, CWD);
+        engine.execute("dup-test", cmd, SHELL, CWD);
       });
     });
   });
@@ -339,8 +341,8 @@ describe("ExecutionEngine", () => {
         const cmd1 = IS_WIN ? "Write-Output 'block-a'" : "echo block-a";
         const cmd2 = IS_WIN ? "Write-Output 'block-b'" : "echo block-b";
 
-        engine.execute("block-a", cmd1, SHELL.path, SHELL.args, CWD);
-        engine.execute("block-b", cmd2, SHELL.path, SHELL.args, CWD);
+        engine.execute("block-a", cmd1, SHELL, CWD);
+        engine.execute("block-b", cmd2, SHELL, CWD);
       });
 
       expect(results["block-a"]?.exitCode).toBe(0);
@@ -359,7 +361,7 @@ describe("ExecutionEngine", () => {
         });
 
         const cmd = IS_WIN ? "Start-Sleep -Seconds 30" : "sleep 30";
-        engine.execute("dispose-test", cmd, SHELL.path, SHELL.args, CWD);
+        engine.execute("dispose-test", cmd, SHELL, CWD);
 
         setTimeout(() => {
           expect(() => engine.dispose()).not.toThrow();
