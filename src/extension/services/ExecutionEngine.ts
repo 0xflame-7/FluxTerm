@@ -258,6 +258,14 @@ export class ExecutionEngine {
           record.meta = parsed;
         }
       } else if (line.length > 0) {
+        // Ignore known harmless ZLE errors when forcing interactive mode without PTY
+        if (
+          type === "stderr" &&
+          (line.includes("can't change option: zle") || 
+           line.includes("widgets can only be called when ZLE is active"))
+        ) {
+          continue;
+        }
         visible.push({ type, text: line });
       }
     }
