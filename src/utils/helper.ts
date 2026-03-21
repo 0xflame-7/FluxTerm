@@ -4,7 +4,7 @@ import { SHELL_PROFILES } from "./constants";
 /**
  * Generate a random ID for blocks or other entities
  */
-export const generateId = () => Math.random().toString(36).substr(2, 9);
+export const generateId = () => crypto.randomUUID();
 
 /**
  * Generate a cryptographically random nonce for CSP
