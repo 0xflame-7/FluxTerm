@@ -134,17 +134,15 @@ export const InputSection: React.FC<InputSectionProps> = ({
           >
             [{context.connection}]
           </span>
-          <div className="flex items-center gap-1">
-            <span
-              className="codicon codicon-git-branch"
-              style={{ fontSize: "14px" }}
-            />
-            <span>
-              {typeof context.branch === "string"
-                ? context.branch
-                : "no branch"}
-            </span>
-          </div>
+          {typeof context.branch === "string" && (
+            <div className="flex items-center gap-1">
+              <span
+                className="codicon codicon-git-branch"
+                style={{ fontSize: "14px" }}
+              />
+              <span>{context.branch}</span>
+            </div>
+          )}
           <Tooltip content="Copy path (Ctrl + Click)">
             <div
               className="flex items-center gap-1 group/cwd cursor-pointer"

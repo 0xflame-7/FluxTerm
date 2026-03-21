@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed git branch rendering logic in `InputSection.tsx` webview component to properly display the branch name and icon only when it is a valid string.
+
 ### Added
 
 - Added "Current Application State and Architecture Overview" to `docs/dev.md` detailing the webview, orchestration, and execution engine architecture.
