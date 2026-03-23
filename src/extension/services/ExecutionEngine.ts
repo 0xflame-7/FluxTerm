@@ -36,6 +36,13 @@ interface ProcessRecord {
   isKilled: boolean;
   /** True once finalize() has been called (prevents double-completion). */
   completed: boolean;
+  /**
+   * FIFO queue of stdin texts written via writeInput().
+   * The PTY/script wrapper echoes each typed line back on stdout;
+   * we use this queue to swallow the first matching stdout line and
+   * prevent a duplicate from appearing after the inline-appended prompt.
+   */
+  stdinEchoQueue: string[];
 }
 
 /**
@@ -129,6 +136,7 @@ export class ExecutionEngine {
       meta: null,
       isKilled: false,
       completed: false,
+      stdinEchoQueue: [],
     };
 
     this.registry.set(blockId, record);
@@ -166,6 +174,8 @@ export class ExecutionEngine {
     }
     try {
       rec.process.stdin.write(text + "\n");
+      // Queue the echo so handleChunk can swallow the PTY-echoed stdout line.
+      rec.stdinEchoQueue.push(text);
       // Emit the typed text as a stdin line so the webview can append it
       // inline onto the preceding prompt line (handled by OutputArea rendering).
       this.callbacks.onStream(blockId, [{ type: "stdin", text }]);
@@ -362,6 +372,16 @@ export class ExecutionEngine {
           record.meta = parsed;
         }
       } else if (line.length > 0) {
+        // Swallow PTY echo: when the user typed something, the script/PTY
+        // wrapper echoes it verbatim as a stdout line. Drop the first match.
+        if (
+          type === "stdout" &&
+          record.stdinEchoQueue.length > 0 &&
+          record.stdinEchoQueue[0] === line
+        ) {
+          record.stdinEchoQueue.shift();
+          continue;
+        }
         visible.push({ type, text: line });
       }
     }
