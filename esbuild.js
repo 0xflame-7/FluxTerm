@@ -55,6 +55,26 @@ async function main() {
     await webviewCtx.rebuild();
     await ctx.dispose();
     await webviewCtx.dispose();
+    // Copy Codicons to dist (since node_modules is excluded from VSIX)
+    const fs = require("fs");
+    const path = require("path");
+    const codiconsDir = path.join(
+      __dirname,
+      "node_modules",
+      "@vscode",
+      "codicons",
+      "dist",
+    );
+    const destDir = path.join(__dirname, "dist", "codicons");
+
+    if (fs.existsSync(codiconsDir)) {
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+      }
+      fs.copyFileSync(path.join(codiconsDir, "codicon.css"), path.join(destDir, "codicon.css"));
+      fs.copyFileSync(path.join(codiconsDir, "codicon.ttf"), path.join(destDir, "codicon.ttf"));
+      console.log("[build] copied codicons to dist");
+    }
   }
 }
 

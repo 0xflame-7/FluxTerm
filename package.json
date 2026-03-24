@@ -4,7 +4,7 @@
   "description": "FluxTerm is a modern VS Code extension that reimagines the terminal experience. Inspired by tools like Warp and Wave, FluxTerm brings features like intelligent autocomplete, multi-log monitoring, split view with drag-and-drop, and powerful command chaining — all within your editor.",
   "version": "1.0.0",
   "publisher": "0xflame-7",
-  "icon": "assets/icon.ico",
+  "icon": "assets/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/0xflame-7/FluxTerm.git"

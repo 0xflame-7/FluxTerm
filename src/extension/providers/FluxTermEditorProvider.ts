@@ -186,14 +186,7 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
       vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview.css"),
     );
     const codiconsUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(
-        this.context.extensionUri,
-        "node_modules",
-        "@vscode",
-        "codicons",
-        "dist",
-        "codicon.css",
-      ),
+      vscode.Uri.joinPath(this.context.extensionUri, "dist", "codicons", "codicon.css"),
     );
 
     const nonce = getNonce();
