@@ -19,7 +19,7 @@ beforeAll(async () => {
   const shells = await ShellResolver.resolve();
   const targetId = IS_WIN ? "powershell" : "bash";
   const found = shells.find(
-    (s) => s.id === targetId || (IS_WIN && s.id === "pwsh")
+    (s) => s.id === targetId || (IS_WIN && s.id === "pwsh"),
   );
   if (!found) {
     throw new Error(`Could not find a valid shell (${targetId}) for testing.`);
@@ -169,7 +169,7 @@ describe("ExecutionEngine", () => {
 
     it("cwd reflects nested cd", async () => {
       // cd into a real temp subdirectory
-      const subDir = fs.mkdtempSync(path.join(os.tmpdir(), "flow-test-"));
+      const subDir = fs.mkdtempSync(path.join(os.tmpdir(), "ftx-test-"));
       try {
         const cmd = IS_WIN ? `Set-Location '${subDir}'` : `cd '${subDir}'`;
 

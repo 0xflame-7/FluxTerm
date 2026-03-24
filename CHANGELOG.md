@@ -1,10 +1,24 @@
 # Change Log
 
-All notable changes to the "flow" extension will be documented in this file.
+All notable changes to the "FluxTerm" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+
+### Added
+
+- **Unit Testing**: Implemented comprehensive unit tests using Vitest across ExecutionEngine (Core, Internals, Edge Cases) and utilities (Logger, ID, Nonces). Validated buffer safety (UTF8/ANSI) and ShellAdapter abstractions.
+
+### Changed
+
+- **Codebase Structural Rename**: Refactored the entire project structure to replace all internal `Flow`/`xflow` references with `FluxTerm`/`fluxterm` (e.g., `FlowEditorProvider` -> `FluxTermEditorProvider`, `FlowCustomDocument` -> `FluxTermCustomDocument`). This aligns all internal class names, filenames, and service hooks with the official extension name.
+- **Protocol Type Rename**: Renamed `FlowDocument`, `FlowBlock`, and `FlowContext` types in `MessageProtocol.ts` to `FluxTermDocument`, `FluxTermBlock`, and `FluxTermContext` for full naming consistency across the extension/webview protocol boundary.
+- **Service Singleton Rename**: Renamed the exported `flowService` singleton from `FluxTermService.ts` to `fluxTermService`. Updated all webview hooks (`useFluxTermDocument`, `useShellConfig`, `useBlockExecution`), React components (`OutputBlock`, `BlockInput`), and `App.tsx` to use the new identifier.
+- **File Extension Unification**: Resolved inconsistency between `.fluxterm` (used in dialogs/tests) and `.ftx` (registered in `package.json`). All dialogs, test fixture URIs, and comments now consistently use `.ftx` as the canonical file extension.
+- **Env Var Rename**: Renamed `XFLOW_DEV_RELOAD` environment variable to `FLUXTERM_DEV_RELOAD` in `extension.ts`.
+
+- **ExecutionEngine Shell Sentinel Rename**: Renamed the internal shell meta line prefix from `__FLOW_META__` to `__FTX_META__` in `ExecutionEngine.ts`. Updated all shell-level variable names in `PosixAdapter` (`__FLOW_TMP` → `__FTX_TMP`, `flow_cmd.*` → `ftx_cmd.*`, `__FLOW_OUTER_EOF__` → `__FTX_OUTER_EOF__`, `__FLOW_EOF__` → `__FTX_EOF__`) and in `CmdAdapter` (`flow_meta.txt` → `ftx_meta.txt`). Updated temp directory prefix in `ExecutionEngine.test.ts` from `flow-test-` to `ftx-test-`.
 
 ## [1.0.0] - 2026-03-24
 
@@ -12,6 +26,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Added `LICENSE` file automatically applying Apache-2.0 license to the project
 - Prepared `package.json` for marketplace publishing (version `1.0.0`, publisher `0xflame-7`, repository links, keywords)
+- Renamed extension from `flow` to `fluxterm` (Display Name: **FluxTerm**) to avoid marketplace identifier collisions
+- Updated file extension from `.ftx` to `.fluxterm`
 - Added new elegant and modern application icon in `assets/icon.png`
 
 ### Changed
@@ -42,8 +58,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
   - Added a new subtle execution metadata footer to surface exit codes, resulting CWD paths, and post-execution git branch changes for completed or error-state blocks.
 - Implemented a comprehensive testing strategy dividing tests into three distinct categories:
   - Unit Tests (Vitest) in `src/tests/unit` for `ExecutionEngine` and `ShellResolver`
-  - Integration Tests (Vitest) in `src/tests/integration` with mocked VS Code context for `FlowDocumentSession`
-  - Extension Tests (Mocha/@vscode/test-cli) in `src/tests/extension` for `FlowEditorProvider` and webview integration
+  - Integration Tests (Vitest) in `src/tests/integration` with mocked VS Code context for `FluxTermDocumentSession`
+  - Extension Tests (Mocha/@vscode/test-cli) in `src/tests/extension` for `FluxTermEditorProvider` and webview integration
 - Added "Current Application State and Architecture Overview" to `docs/dev.md` detailing the webview, orchestration, and execution engine architecture.
 - Added `vitest.config.mts` and `vitest.config.webview.mts` to support webview testing using Vitest as per the project rules
 
@@ -55,12 +71,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
   - `FlowContext.shell`: `string | null` → `ResolvedShell | null`
   - `WebviewMessage.execute`: removed separate `args: string[]` field; `shell: ResolvedShell` carries both path and args
   - `ExecutionEngine.execute()`: signature from `(shellPath, baseArgs, …)` → `(shell: ResolvedShell, …)`
-  - `FlowService.execute()`: signature from `(shell: string, args: string[], …)` → `(shell: ResolvedShell, …)`
+  - `FluxTermService.execute()`: signature from `(shell: string, args: string[], …)` → `(shell: ResolvedShell, …)`
   - `notebookStore.createBlock()`: `shell` param is now `ResolvedShell`
   - `App.tsx`: removed `.find()` lookups to recover args; passes full `ResolvedShell` everywhere
   - `InputSection.tsx`: `onShellChange` callback now passes the full `ResolvedShell` instead of a path string
   - `FlowDocument.shell` remains `string` (shell `id`) for JSON serialization; webview matches it to the live shell list on load
-  - `FlowDocumentSession`: extension send `shell: null` in init context; webview restores selection from saved `id` + shell list
+  - `FluxTermDocumentSession`: extension send `shell: null` in init context; webview restores selection from saved `id` + shell list
 - Renamed `src/utils/constant.ts` -> `src/utils/constants.ts` adhering to the rule that any source of truth must be in `constants.ts`
 - Excluded vitest configs from `tsconfig.json` to fix `rootDir` errors
 - Replaced `-i` (interactive) with `-l` (login) mode for `bash` and `zsh` profiles to prevent ZLE errors and unpredictable stdin handling in non-TTY environments. To retain user-specific configurations (aliases, exports) typically loaded in interactive shells, `PosixAdapter.buildWrapperCommand()` now conditionally sources `~/.bashrc` and `~/.zshrc` explicitly prior to executing commands, and uses a multi-line explicit `eval` block to ensure `shopt expand_aliases` and `setopt aliases` correctly parse the user commands.
