@@ -7,22 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@vscode/codicons':
-        specifier: ^0.0.44
-        version: 0.0.44
-      ansi-to-react:
-        specifier: ^6.2.6
-        version: 6.2.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      immer:
-        specifier: ^11.1.4
-        version: 11.1.4
-      react:
-        specifier: ^19.2.4
-        version: 19.2.4
-      react-dom:
-        specifier: ^19.2.4
-        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@tailwindcss/cli':
         specifier: ^4.2.2
@@ -54,24 +38,39 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.1
         version: 4.1.1(vitest@4.1.1(@types/node@22.19.15)(jsdom@29.0.1)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)))
+      '@vscode/codicons':
+        specifier: ^0.0.44
+        version: 0.0.44
       '@vscode/test-cli':
         specifier: ^0.0.12
         version: 0.0.12
       '@vscode/test-electron':
         specifier: ^2.5.2
         version: 2.5.2
+      ansi-to-react:
+        specifier: ^6.2.6
+        version: 6.2.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       esbuild:
         specifier: ^0.27.4
         version: 0.27.4
       eslint:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.6.1)
+      immer:
+        specifier: ^11.1.4
+        version: 11.1.4
       jsdom:
         specifier: ^29.0.1
         version: 29.0.1
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
+      react:
+        specifier: ^19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.2.4
+        version: 19.2.4(react@19.2.4)
       tailwindcss:
         specifier: ^4.2.2
         version: 4.2.2

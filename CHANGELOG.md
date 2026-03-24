@@ -18,6 +18,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Bumped `engines.vscode` requirement from `^1.10.5` to `^1.110.0` to match `@types/vscode` compatibility.
 - Upgraded various `devDependencies` (including `esbuild`, `eslint`, `tailwindcss`, `vitest`, and `@types/*`) to their latest versions.
+- Moved all runtime `dependencies` to `devDependencies` to enforce zero-dependency bundling natively via `esbuild`.
+- Configured `vsce` ignoring to bypass runtime `node_modules` bloat, effectively slashing `.vsix` size.
 
 ### Fixed
 
