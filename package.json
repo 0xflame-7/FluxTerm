@@ -2,9 +2,22 @@
   "name": "flow",
   "displayName": "Flow",
   "description": "Flow is a modern VSCode extension that reimagines the terminal experience. Inspired by tools like Warp and Wave, Flow brings features like intelligent autocomplete, multi-log monitoring, split view with drag-and-drop, and powerful command chaining — all within your editor ",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "publisher": "0xflame-7",
+  "icon": "assets/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xflame-7/Flow.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "terminal",
+    "vscode",
+    "shell",
+    "developer tools"
+  ],
   "engines": {
-    "vscode": "^1.10.5"
+    "vscode": "^1.110.0"
   },
   "categories": [
     "Other"
@@ -53,26 +66,26 @@
     "test:extension": "vscode-test"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.18",
+    "@tailwindcss/cli": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/mocha": "^10.0.10",
-    "@types/node": "22.x",
+    "@types/node": "~22.19.15",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@types/vscode": "^1.104.0",
-    "@vitest/coverage-v8": "^4.1.0",
+    "@types/vscode": "^1.110.0",
+    "@vitest/coverage-v8": "^4.1.1",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
-    "esbuild": "^0.27.1",
-    "eslint": "^9.39.1",
+    "esbuild": "^0.27.4",
+    "eslint": "^9.39.4",
     "jsdom": "^29.0.1",
     "npm-run-all": "^4.1.5",
-    "tailwindcss": "^4.1.18",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.1",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "^8.57.2",
+    "vitest": "^4.1.1"
   },
   "dependencies": {
     "@vscode/codicons": "^0.0.44",

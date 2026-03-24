@@ -6,6 +6,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-24
+
+### Added
+
+- Added `LICENSE` file automatically applying Apache-2.0 license to the project
+- Prepared `package.json` for marketplace publishing (version `1.0.0`, publisher `0xflame-7`, repository links, keywords)
+- Added new elegant and modern application icon in `assets/icon.png`
+
+### Changed
+
+- Bumped `engines.vscode` requirement from `^1.10.5` to `^1.110.0` to match `@types/vscode` compatibility.
+- Upgraded various `devDependencies` (including `esbuild`, `eslint`, `tailwindcss`, `vitest`, and `@types/*`) to their latest versions.
+
 ### Fixed
 
 - Removed stdin echo in `ExecutionEngine.writeInput` — typed input was displayed as a redundant `> text` line in output. Input is now silently forwarded to the process stdin without surfacing as a visible stream line.
