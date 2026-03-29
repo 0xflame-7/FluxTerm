@@ -128,19 +128,22 @@ export default function App() {
     connection: runtimeContext.connection ?? "local",
   };
 
-  const handleRun = useCallback((cmd: string) => {
-    const shell = displayContext.shell;
-    if (!shell) {
-      return;
-    }
-    const blockId = createBlock(
-      cmd,
-      shell,
-      displayContext.cwd,
-      displayContext.branch ?? null,
-    );
-    fluxTermService.execute(blockId, cmd, shell, displayContext.cwd);
-  }, [displayContext, createBlock]);
+  const handleRun = useCallback(
+    (cmd: string) => {
+      const shell = displayContext.shell;
+      if (!shell) {
+        return;
+      }
+      const blockId = createBlock(
+        cmd,
+        shell,
+        displayContext.cwd,
+        displayContext.branch ?? null,
+      );
+      fluxTermService.execute(blockId, cmd, shell, displayContext.cwd);
+    },
+    [displayContext, createBlock],
+  );
 
   // E2E testing hook to allow headless runner to inject interactions visually into React
   useEffect(() => {
@@ -149,7 +152,9 @@ export default function App() {
       if (msg.type === "testRunCommand" && msg.command) {
         handleRun(msg.command);
       } else if (msg.type === "testInputText" && msg.text) {
-        const runningBlock = Array.isArray(blocks) ? blocks.find((b) => b.status === "running") : null;
+        const runningBlock = Array.isArray(blocks)
+          ? blocks.find((b) => b.status === "running")
+          : null;
         if (runningBlock) {
           fluxTermService.sendInput(runningBlock.id, msg.text);
         }
@@ -240,6 +245,49 @@ export default function App() {
             </div>
           ))}
 
+        {/* Notebook shell */}
+        <div className="group relative rounded-lg bg-[#252526]/30 notebook-block active-block flex flex-col transition-all duration-150 overflow-hidden">
+          <div className="flex items-center gap-x-3 px-4 pt-3 pb-2 text-xs select-none border-b border-white/5">
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#3c3c3c] rounded text-gray-300 hover:text-white cursor-pointer transition-colors group/shell">
+              <span className="text-[10px] font-bold uppercase tracking-wider">bash</span>
+              <span className="material-symbols-outlined text-base leading-none text-gray-500 group-hover/shell:text-gray-300">keyboard_arrow_down</span>
+            </div>
+            <div className="flex items-center gap-1 text-[#6e7681]">
+              <span className="material-symbols-outlined text-sm">call_split</span>
+              <span>main</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm text-gray-400">folder_open</span>
+              <span className="text-primary">~/work/wave-dev/wave-client</span>
+            </div>
+            <div className="ml text-gray-500 text-[10px]">#22 • Just now</div>
+          </div>
+          <div className="p-4">
+            <div className="flex items-center gap-x-2 font-medium mb-2 group-focus-within:text-white">
+              <span className="text-primary font-bold">$</span>
+              <input autoFocus className="flex-1 bg-transparent border-none p-0 text-white focus:ring-0 placeholder-gray-600 font-mono text-sm leading-6" placeholder="Type a command..." type="text" />
+            </div>
+          </div>
+          <div className="absolute right-2 flex items-center gap-0.5 z-30 bg-vscode-bg/80 backdrop-blur-sm border border-vscode-border rounded shadow-lg p-0.5 opacity-40 group-hover:opacity-100 transition-all duration-200" style={{ top: "-19px" }}>
+            <button className="p-1 text-[#cccccc] hover:bg-[#3c3c3c] hover:text-white rounded" title="Re-run">
+              <span className="material-symbols-outlined text-lg leading-none">refresh</span>
+            </button>
+            <button className="p-1 text-[#cccccc] hover:bg-[#3c3c3c] hover:text-white rounded" title="Search">
+              <span className="material-symbols-outlined text-lg leading-none">search</span>
+            </button>
+            <button className="p-1 text-[#cccccc] hover:bg-[#3c3c3c] hover:text-red-400 rounded" title="Delete">
+              <span className="material-symbols-outlined text-lg leading-none">delete</span>
+            </button>
+            <div className="w-px h-4 bg-[#333] mx-0.5"></div>
+            <button className="drag-handle p-1 text-[#cccccc] hover:bg-[#3c3c3c] hover:text-white rounded cursor-grab" title="Drag to split">
+              <span className="material-symbols-outlined text-lg leading-none">drag_indicator</span>
+            </button>
+            <div className="w-px h-4 bg-[#333] mx-0.5"></div>
+            <button className="p-1 text-[#cccccc] hover:bg-[#3c3c3c] hover:text-white rounded" title="More">
+              <span className="material-symbols-outlined text-lg leading-none">more_horiz</span>
+            </button>
+          </div>
+        </div>
         {/* Spacer above the input bar */}
         <div style={{ height: "24px" }} />
       </main>

@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- **Webview UI**: Added a static, beautifully styled UI representation of an interactive notebook shell below the executed blocks in `App.tsx`.
 - **Webview UI & Store Testing**: Integrated `vitest` with `jsdom` and `@testing-library/react` to verify frontend state management (Zustand), messaging services, and React component rendering (OutputArea, App).
 - **Electron E2E Integration Testing**: Added `@vscode/test-cli` automated UI lifecycle tests. Bypassed UI save dialogs during test loops and extracted Webview message orchestration hooks, directly enabling real programmatic simulations of custom editors, Python scripts, terminal execution piping, and Garbage Collection natively inside the VS Code host.
 - **E2E Integration Testing**: Added codebase-wide E2E verifications for Python 3 interactive scripting (`stdin`, prompt handling) and native shell alias executions (`ls`, `ll`) across platforms, validating the absence of structural regressions post FluxTerm refactor.
