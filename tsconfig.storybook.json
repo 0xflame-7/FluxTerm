@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["vite/client"]
+  },
+  "include": ["src/webview/**/*", ".storybook/**/*"],
+  "exclude": ["node_modules", "dist", "src/extension", "src/tests"]
+}

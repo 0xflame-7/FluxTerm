@@ -14,6 +14,7 @@ This format follows rigorous open-source repository management standards.
 
 ### Bug Fixes
 
+- **storybook**: Renamed `vsTheme.ts` to `vsTheme.mts` to resolve a TypeScript ESM/CJS module mismatch. Under `moduleResolution: Node16`, importing from the pure-ESM `@storybook/react-vite` package inside a file treated as CommonJS (due to no `"type": "module"` in `package.json`) raised a `resolution-mode` attribute error. The `.mts` extension explicitly signals ESM to TypeScript regardless of `package.json#type`.
 - **webview**: Resolved an issue where codicons failed to load in development by conditionally resolving the webview URI based on the extension mode.
 - **engine**: Removed unintended `stdin` echoes in `writeInput` to prevent duplicate terminal outputs.
 - **engine**: Refactored the `handleChunk` stream pipeline to immediately emit trailing partial output segments. This guarantees real-time rendering of interactive prompts (e.g., Python's `input()`).

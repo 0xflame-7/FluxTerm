@@ -64,9 +64,13 @@
     "test:unit": "vitest run -c vitest.config.mts src/tests/unit",
     "test:integration": "vitest run -c vitest.config.mts src/tests/integration",
     "test:extension": "vscode-test",
-    "test:webview": "vitest run -c vitest.config.webview.mts"
+    "test:webview": "vitest run -c vitest.config.webview.mts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "devDependencies": {
+    "@storybook/addon-themes": "^10.3.4",
+    "@storybook/react-vite": "^10.3.4",
     "@tailwindcss/cli": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -75,6 +79,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.110.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vscode/codicons": "^0.0.44",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
@@ -87,9 +92,11 @@
     "npm-run-all": "^4.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "storybook": "^10.3.4",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
+    "vite": "^8.0.3",
     "vitest": "^4.1.1"
   },
   "vsce": {
