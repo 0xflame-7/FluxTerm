@@ -55,9 +55,8 @@ export default function App() {
   } = useNotebook(docContext, []);
 
   // ── Document Groups ──────────────────────────────────────────────────────
-  const [documents, setDocuments] = useState<BlockDocumentMeta[]>([
-    { id: "default", name: DEFAULT_DOC_NAME },
-  ]);
+  // Empty on new files — the ghost BlockDocument is the sole entry surface.
+  const [documents, setDocuments] = useState<BlockDocumentMeta[]>([]);
 
   // Ghost document trailing entry surface
   const [ghostDocCommand, setGhostDocCommand] = useState("");
@@ -77,10 +76,27 @@ export default function App() {
     } else if (docContext.cwd) {
       setRuntimeContext(docContext);
     }
+
     if (document.documents && document.documents.length > 0) {
+      // Normal restore: documents were persisted
       setDocuments(document.documents);
+    } else if (document.blocks && document.blocks.length > 0) {
+      // Legacy format: blocks exist but no documents array saved.
+      // Synthesise document groups from the block documentIds.
+      const seen = new Set<string>();
+      const synth: BlockDocumentMeta[] = [];
+      for (const b of document.blocks as any[]) {
+        const id = b.documentId ?? "default";
+        if (!seen.has(id)) {
+          seen.add(id);
+          synth.push({ id, name: DEFAULT_DOC_NAME });
+        }
+      }
+      setDocuments(synth);
     }
+    // New file: documents stays [], ghost BlockDocument is shown
   }, [docContext.cwd]);
+
 
   // Wire execution events from extension to notebookStore
   useBlockExecution({ appendOutput, completeBlock, setBlockStatus });
