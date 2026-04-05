@@ -72,13 +72,14 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
     const isDone = status === "done";
     const isError = status === "error";
     const isKilled = status === "killed";
-    // Editable when ghost or idle store block
-    const isEditable = isGhost || status === "idle";
+    // Editable in every state except while the command is actively running.
+    const isEditable = isGhost || !isRunning;
 
-    // Local command for idle store blocks (not ghost — ghost is parent-controlled)
+    // Local command — pre-filled from the frozen block command so the user can
+    // edit and re-submit after the block completes.
     const [localCommand, setLocalCommand] = useState(block?.command ?? "");
 
-    const commandValue = isGhost ? ghostCommand : isEditable ? localCommand : (block?.command ?? "");
+    const commandValue = isGhost ? ghostCommand : localCommand;
     const setCommandValue = isGhost
       ? (v: string) => onGhostCommandChange?.(v)
       : (v: string) => setLocalCommand(v);
@@ -477,7 +478,7 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
             <textarea
               ref={textareaRef}
               autoFocus={isGhost || status === "idle"}
-              readOnly={!isEditable}
+              readOnly={isRunning}
               rows={1}
               value={commandValue}
               onChange={(e) => !isEditable ? undefined : setCommandValue(e.target.value)}

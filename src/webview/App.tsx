@@ -204,17 +204,33 @@ export default function App() {
     [displayContext, createBlock, persistDocuments],
   );
 
-  /** Submit from an idle store block (created via Add button). */
-  const handleIdleBlockSubmit = useCallback(
+  /** Submit from any non-running store block. Idle: promote in-place. Done/error/killed: clone with the (edited) command. */
+  const handleBlockSubmit = useCallback(
     (blockId: string, cmd: string) => {
       const shell = displayContext.shell;
       if (!shell || !cmd.trim()) return;
-      promoteIdleBlock(blockId, cmd, shell, displayContext.cwd, displayContext.branch ?? null);
-      fluxTermService.execute(blockId, cmd, shell, displayContext.cwd);
+      const orig = blocks.find((b) => b.id === blockId);
+      if (!orig) return;
+
+      if (orig.status === "idle") {
+        promoteIdleBlock(blockId, cmd, shell, displayContext.cwd, displayContext.branch ?? null);
+        fluxTermService.execute(blockId, cmd, shell, displayContext.cwd);
+      } else {
+        // done / error / killed — create a fresh block (keeps original in history)
+        const newId = createBlock(
+          cmd,
+          shell,
+          displayContext.cwd,
+          displayContext.branch ?? null,
+          orig.documentId ?? documents[0]?.id,
+        );
+        fluxTermService.execute(newId, cmd, shell, displayContext.cwd);
+      }
       fluxTermService.markDirty();
     },
-    [displayContext, promoteIdleBlock],
+    [displayContext, blocks, promoteIdleBlock, createBlock, documents],
   );
+
 
   /** Insert a new idle block immediately after `afterBlockId` in the same doc. */
   const handleAddAfter = useCallback(
@@ -298,22 +314,7 @@ export default function App() {
                 .forEach((b) => handleReRun(b.id));
             }}
           >
-            {/* Empty state */}
-            {docBlocks.length === 0 && (
-              <div
-                className="flex flex-col items-center justify-center py-8 opacity-40"
-                style={{ color: "var(--vscode-descriptionForeground)" }}
-              >
-                <span
-                  className="codicon codicon-terminal"
-                  style={{ fontSize: "32px", marginBottom: "12px" }}
-                />
-                <div className="text-base mb-1">FluxTerm Notebook</div>
-                <div className="text-xs">
-                  Type a command below to get started
-                </div>
-              </div>
-            )}
+
 
             {/* Real blocks */}
             {docBlocks.map((block) => (
@@ -323,7 +324,7 @@ export default function App() {
                 context={displayContext}
                 availableShells={shells}
                 onShellChange={handleShellChange}
-                onSubmit={(cmd) => handleIdleBlockSubmit(block.id, cmd)}
+                onSubmit={(cmd) => handleBlockSubmit(block.id, cmd)}
                 onDelete={() => {
                   deleteBlock(block.id);
                   fluxTermService.markDirty();
