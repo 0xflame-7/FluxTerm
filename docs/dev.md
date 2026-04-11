@@ -18,6 +18,14 @@ The architecture is split between three main components:
 
 ### Recent Fixes & Updates
 
+- **Execution Path Duality Fixed (`notebookStore.ts`, `App.tsx`)**
+
+  **Problem**: There were two entry paths for non-ghost block execution: `promoteIdleBlock` for idle blocks and `reRunBlockInPlace` for completed blocks. This duality led to subtle bugs where execution data shapes drifted apart over time.
+
+  **Fix**: Both paths were unified into a single `runBlock` function inside `notebookStore.ts`. This primitive accurately coordinates command, shell, cwd, and branch updates alongside datetime separator injection and sequence guard increments, creating a single robust entry point for all block executions.
+
+  **Files changed**: `src/webview/store/notebookStore.ts` — replaced `promoteIdleBlock` and `reRunBlockInPlace` with `runBlock`; `src/webview/App.tsx` — switched `handleBlockSubmit` and `handleReRun` to use `runBlock`.
+
 - **OutputArea Run-Session Grouping (`OutputArea.tsx`, `Block.tsx`)**
 
   **What changed**: Each run's output is now visually grouped under a compact italic `[timestamp]` label with a blue left-border block, matching the workspace mock pattern. The old `SeparatorRow` full-width divider rule is removed.

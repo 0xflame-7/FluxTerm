@@ -142,6 +142,8 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const shellButtonRef = useRef<HTMLButtonElement>(null);
     const shellMenuRef = useRef<HTMLDivElement>(null);
+    // Internal ref for outside-click detection; merged with the forwarded ref below.
+    const blockRootRef = useRef<HTMLDivElement>(null);
 
     // Auto-resize textarea height to content
     useEffect(() => {
@@ -168,6 +170,23 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
       document.addEventListener("mousedown", handle);
       return () => document.removeEventListener("mousedown", handle);
     }, [showShellMenu]);
+
+    // Reliably unfocus when clicking anywhere outside this block.
+    // The onBlur/relatedTarget approach is unreliable in VS Code's webview
+    // iframe when the click target is non-focusable.
+    useEffect(() => {
+      if (!isFocused) return;
+      const handle = (e: MouseEvent) => {
+        if (
+          blockRootRef.current &&
+          !blockRootRef.current.contains(e.target as Node)
+        ) {
+          setIsFocused(false);
+        }
+      };
+      document.addEventListener("mousedown", handle);
+      return () => document.removeEventListener("mousedown", handle);
+    }, [isFocused]);
 
     const handleSubmit = useCallback(() => {
       if (!commandValue.trim() || isRunning) return;
@@ -301,9 +320,17 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
       block !== null &&
       block.output.length > (block.clearedAt ?? 0);
 
+    // Merge the forwarded ref with our internal blockRootRef.
+    const mergeRef = (node: HTMLDivElement | null) => {
+      (blockRootRef as React.RefObject<HTMLDivElement | null>).current = node;
+      if (!ref) return;
+      if (typeof ref === "function") ref(node);
+      else (ref as React.RefObject<HTMLDivElement | null>).current = node;
+    };
+
     return (
       <div
-        ref={ref}
+        ref={mergeRef}
         className="block-card-wrapper"
         style={{
           position: "relative",
@@ -502,9 +529,17 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
             transition: "border-color 100ms, opacity 150ms",
           }}
           onFocus={() => setIsFocused(true)}
-          onBlur={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          onMouseDown={(e) => {
+            // When clicking non-interactive areas inside the card (output,
+            // context bar, etc.) explicitly blur the textarea so focus is
+            // visually and functionally released.
+            const target = e.target as HTMLElement;
+            const isInteractive = !!target.closest(
+              "textarea, input, button, select, a, [role='button'], [tabindex]",
+            );
+            if (!isInteractive) {
               setIsFocused(false);
+              textareaRef.current?.blur();
             }
           }}
         >

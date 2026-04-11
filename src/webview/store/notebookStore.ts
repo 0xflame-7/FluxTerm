@@ -55,11 +55,16 @@ export interface UseNotebookReturn {
   /** Remove all blocks belonging to a given document group. */
   deleteBlocksByDocumentId: (documentId: string) => void;
   /**
-   * Re-run a completed block in-place: append a datetime separator,
-   * reset to "running", and return the same block id for execute dispatch.
-   * Returns `null` if the block is not found.
+   * Run or re-run a block in-place.
+   * Updates execution properties, resets status to "running", and injects a datetime separator.
    */
-  reRunBlockInPlace: (blockId: string) => string | null;
+  runBlock: (
+    blockId: string,
+    command: string,
+    shell: ResolvedShell,
+    cwd: string,
+    branch: string | null,
+  ) => string | null;
   /**
    * Clear the visible output of a block.
    * Sets `clearedAt` to the current output length and `clearedAtTime` to now.
@@ -83,18 +88,7 @@ export interface UseNotebookReturn {
     branch: string | null,
     documentId?: string,
   ) => string;
-  /**
-   * Atomically promote an idle block to running.
-   * Sets command, shell, cwd, branch, and status in one Immer pass.
-   * Must be called just before dispatching `fluxTermService.execute`.
-   */
-  promoteIdleBlock: (
-    blockId: string,
-    command: string,
-    shell: ResolvedShell,
-    cwd: string,
-    branch: string | null,
-  ) => void;
+
   /**
    * Update the frozen `cwd` on an idle block.
    * Only mutates blocks with status === "idle" — no-op otherwise.
@@ -309,46 +303,71 @@ export function useNotebook(
   }, []);
 
   /**
-   * Re-run a completed block **in-place** (no cloning).
+   * Run or re-run a block **in-place** (no cloning).
    *
-   * 1. Guards against re-running a block that is already running.
-   * 2. Appends a datetime separator so old logs are preserved above it.
-   * 3. Resets status → "running" and clears completion metadata.
-   * 4. Bumps `blockSeq` (the sequence guard counter) WITHOUT touching
-   *    `block.seq` — so the block stays in its visual position after re-run.
+   * 1. Guards against running a block that is already running.
+   * 2. Always updates block command, shell, cwd, branch to match the NEW run.
+   * 3. Bumps `blockSeq` (the sequence guard counter) WITHOUT touching
+   *    `block.seq` — so the block stays in its visual position.
    *    The new `blockSeq` value is stored on the block as `lastRunSeq` for
    *    the `completeBlock` sequence guard to use.
-   * Returns `null` if the block is not found or is already running.
+   * 4. Injects initial datetime separator for idle blocks, or appends one for completed blocks.
+   * Returns `blockId` if successful, or `null` if the block is not found or is already running.
    */
-  const reRunBlockInPlace = useCallback((blockId: string): string | null => {
-    let found = false;
-    setState((prev) =>
-      produce(prev, (draft) => {
-        const block = draft.blocks.find((b) => b.id === blockId);
-        // Guard: never re-run a block that is already running
-        if (!block || block.status === "running") {
-          return;
-        }
-        found = true;
-        // Advance the sequence guard counter but do NOT change block.seq.
-        // block.seq controls visual ordering; blockSeq guards stale completions.
-        const runSeq = draft.blockSeq + 1;
-        draft.blockSeq = runSeq;
-        (block as any).lastRunSeq = runSeq;
-        // Preserve old output, append a datetime separator before new output.
-        block.output.push({
-          type: "separator",
-          text: new Date().toISOString(),
-        });
-        block.status = "running";
-        block.exitCode = null;
-        block.finalCwd = null;
-        block.finalBranch = null;
-        // clearedAt / clearedAtTime are intentionally preserved.
-      }),
-    );
-    return found ? blockId : null;
-  }, []);
+  const runBlock = useCallback(
+    (
+      blockId: string,
+      command: string,
+      shell: ResolvedShell,
+      cwd: string,
+      branch: string | null,
+    ): string | null => {
+      let found = false;
+      setState((prev) =>
+        produce(prev, (draft) => {
+          const block = draft.blocks.find((b) => b.id === blockId);
+          // Guard: never run a block that is already running
+          if (!block || block.status === "running") {
+            return;
+          }
+          found = true;
+          const isIdle = block.status === "idle";
+
+          block.command = command;
+          block.shell = shell;
+          block.cwd = cwd;
+          block.branch = branch;
+          block.status = "running";
+          
+          block.exitCode = null;
+          block.finalCwd = null;
+          block.finalBranch = null;
+
+          // Advance the sequence guard counter but do NOT change block.seq.
+          // block.seq controls visual ordering; blockSeq guards stale completions.
+          const runSeq = draft.blockSeq + 1;
+          draft.blockSeq = runSeq;
+          (block as any).lastRunSeq = runSeq;
+
+          const separator: OutputLine = {
+            type: "separator",
+            text: new Date().toISOString(),
+          };
+
+          if (isIdle) {
+            block.createdAt = Date.now();
+            block.output = [separator];
+          } else {
+            // Preserve old output, append a datetime separator before new output.
+            block.output.push(separator);
+          }
+          // clearedAt / clearedAtTime are intentionally preserved.
+        }),
+      );
+      return found ? blockId : null;
+    },
+    [],
+  );
 
   /**
    * Hide all current output lines for a block.
@@ -427,39 +446,7 @@ export function useNotebook(
     [],
   );
 
-  /**
-   * Atomically promote an idle block to running state.
-   * Freezes command, shell, cwd, branch into the block and sets status = "running".
-   * Also injects the datetime separator and sets `createdAt` to now, matching
-   * the behaviour of `createBlock` for consistent output history headers.
-   */
-  const promoteIdleBlock = useCallback(
-    (
-      blockId: string,
-      command: string,
-      shell: ResolvedShell,
-      cwd: string,
-      branch: string | null,
-    ): void => {
-      setState((prev) =>
-        produce(prev, (draft) => {
-          const block = draft.blocks.find((b) => b.id === blockId);
-          if (block && block.status === "idle") {
-            block.command = command;
-            block.shell = shell;
-            block.cwd = cwd;
-            block.branch = branch;
-            block.status = "running";
-            // Inject the datetime separator so promoted blocks have the same
-            // output header structure as blocks created via createBlock.
-            block.output = [{ type: "separator", text: new Date().toISOString() }];
-            block.createdAt = Date.now();
-          }
-        }),
-      );
-    },
-    [],
-  );
+
 
   /**
    * Update the `cwd` on an idle block (e.g. user edits the path before submitting).
@@ -486,12 +473,11 @@ export function useNotebook(
     completeBlock,
     deleteBlock,
     deleteBlocksByDocumentId,
-    reRunBlockInPlace,
+    runBlock,
     clearBlockOutput,
     setRuntimeContext,
     resetNotebook,
     spliceBlockAfter,
-    promoteIdleBlock,
     updateBlockCwd,
   };
 }

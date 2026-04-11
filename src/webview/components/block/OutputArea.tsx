@@ -17,8 +17,7 @@ function formatSeparatorDate(isoOrMs: string | number): string {
   });
 }
 
-// ─── Output line row ──────────────────────────────────────────────────────────
-
+// Output line row
 interface LineProps {
   line: OutputLine;
   /** Text typed by the user, appended inline after the line (e.g. prompt answer). */
@@ -62,8 +61,7 @@ const OutputLineRow: React.FC<LineProps> = ({
   );
 };
 
-// ─── Display row builder ──────────────────────────────────────────────────────
-
+// Display row builder
 interface DisplayRow {
   line: OutputLine;
   inlineInput?: string;
@@ -92,8 +90,7 @@ function buildDisplayRows(lines: OutputLine[]): DisplayRow[] {
   return rows;
 }
 
-// ─── Run session group (separator + its output lines) ────────────────────────
-
+// Run session group (separator + its output lines)
 interface RunGroup {
   /** ISO string / ms timestamp from the separator line */
   separatorText: string;
@@ -122,8 +119,7 @@ function buildRunGroups(rows: DisplayRow[]): RunGroup[] {
   return groups;
 }
 
-// ─── OutputArea ───────────────────────────────────────────────────────────────
-
+// OutputArea
 export const OutputArea: React.FC<{
   block: FluxTermBlock;
   searchQuery: string;
@@ -197,6 +193,8 @@ export const OutputArea: React.FC<{
         display: "flex",
         flexDirection: "column",
         gap: "0",
+        maxHeight: "300px",
+        overflowY: "auto",
       }}
     >
       {groups.map((group, gi) => {
@@ -212,8 +210,7 @@ export const OutputArea: React.FC<{
                 style={{
                   display: "block",
                   color: "var(--vscode-descriptionForeground)",
-                  fontSize: "10px",
-                  fontStyle: "italic",
+                  fontSize: "12px",
                   userSelect: "none",
                   marginTop: gi === 0 ? "0" : "14px",
                   marginBottom: "3px",
@@ -245,8 +242,6 @@ export const OutputArea: React.FC<{
                   gap: "2px",
                   borderTopLeftRadius: "2px",
                   borderBottomLeftRadius: "2px",
-                  maxHeight: "300px",
-                  overflowY: "auto",
                 }}
               >
                 {group.rows.map((row, ri) => {

@@ -268,12 +268,11 @@ export const CwdEditor: React.FC<CwdEditorProps> = ({
   };
 
   // Render: edit mode
-
   if (isEditing) {
     return (
       <div
         ref={wrapperRef}
-        style={{ position: "relative", flex: 1, minWidth: 0 }}
+        style={{ position: "relative", flex: 1, minWidth: 0, maxWidth: "50%" }}
         onFocus={() => {
           focusInsideRef.current = true;
         }}

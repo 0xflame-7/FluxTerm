@@ -47,12 +47,11 @@ export default function App() {
     completeBlock,
     deleteBlock,
     deleteBlocksByDocumentId,
-    reRunBlockInPlace,
+    runBlock,
     clearBlockOutput,
     setRuntimeContext,
     resetNotebook,
     spliceBlockAfter,
-    promoteIdleBlock,
     updateBlockCwd,
   } = useNotebook(docContext, []);
 
@@ -255,7 +254,7 @@ export default function App() {
    * Submit from any non-running store block.
    * `shell` is the block's local shell (may have been changed by the user).
    * `cwdOverride` is set when the user edited the CWD via CwdEditor before submitting.
-   * Idle: promote in-place. Done/error/killed: re-run in-place with the NEW cmd.
+   * Runs the block in-place with the NEW cmd/shell/cwd.
    */
   const handleBlockSubmit = useCallback(
     (
@@ -268,28 +267,23 @@ export default function App() {
       const orig = blocks.find((b) => b.id === blockId);
       if (!orig) return;
 
-      if (orig.status === "idle") {
-        const effectiveCwd = cwdOverride ?? orig.cwd;
-        promoteIdleBlock(
-          blockId,
-          cmd,
-          shell,
-          effectiveCwd,
-          orig.branch ?? null,
-        );
-        fluxTermService.execute(blockId, cmd, shell, effectiveCwd);
-      } else {
-        // done / error / killed — re-run the same block in-place.
-        // BUG 1 FIX: use `cmd` (the user's current textarea text), not
-        // `orig.command` (the command stored in the last run).
-        const sameId = reRunBlockInPlace(blockId);
-        if (!sameId) return;
-        const effectiveCwd = cwdOverride ?? orig.finalCwd ?? orig.cwd;
-        fluxTermService.execute(sameId, cmd, shell, effectiveCwd);
-      }
+      const effectiveCwd =
+        cwdOverride ??
+        (orig.status === "idle" ? orig.cwd : (orig.finalCwd ?? orig.cwd));
+
+      const sameId = runBlock(
+        blockId,
+        cmd,
+        shell,
+        effectiveCwd,
+        orig.branch ?? null,
+      );
+      if (!sameId) return;
+
+      fluxTermService.execute(sameId, cmd, shell, effectiveCwd);
       fluxTermService.markDirty();
     },
-    [blocks, promoteIdleBlock, reRunBlockInPlace],
+    [blocks, runBlock],
   );
 
   /**
@@ -315,16 +309,21 @@ export default function App() {
 
   /** Run a completed block in-place using the command/cwd/shell provided by Block's local state. */
   const handleReRun = useCallback(
-    (blockId: string, cmd: string, cwd: string, shell: ResolvedShell | null) => {
+    (
+      blockId: string,
+      cmd: string,
+      cwd: string,
+      shell: ResolvedShell | null,
+    ) => {
       if (!shell) return;
       const orig = blocks.find((b) => b.id === blockId);
       if (!orig) return;
-      const sameId = reRunBlockInPlace(blockId);
+      const sameId = runBlock(blockId, cmd, shell, cwd, orig.branch ?? null);
       if (!sameId) return;
       fluxTermService.execute(sameId, cmd, shell, cwd);
       fluxTermService.markDirty();
     },
-    [blocks, reRunBlockInPlace],
+    [blocks, runBlock],
   );
 
   /** Clear the visible output of a block (sets clearedAt to current output length). */
@@ -418,7 +417,9 @@ export default function App() {
                   deleteBlock(block.id);
                   fluxTermService.markDirty();
                 }}
-                onReRun={(cmd, cwd, shell) => handleReRun(block.id, cmd, cwd, shell)}
+                onReRun={(cmd, cwd, shell) =>
+                  handleReRun(block.id, cmd, cwd, shell)
+                }
                 onClearOutput={() => handleClearOutput(block.id)}
                 onAddAfter={() => handleAddAfter(block.id, doc.id)}
                 onKill={() => fluxTermService.killBlock(block.id)}

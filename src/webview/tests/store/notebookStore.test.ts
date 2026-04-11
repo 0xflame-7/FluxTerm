@@ -120,7 +120,7 @@ describe("useNotebook Store Hook", () => {
     expect(result.current.runtimeContext.cwd).toBe("/path2");
   });
 
-  it("should re-run a block in-place and append a separator", () => {
+  it("should run a block in-place and append a separator", () => {
     const { result } = renderHook(() => useNotebook(mockContext, []));
 
     let id1: string = "";
@@ -142,7 +142,13 @@ describe("useNotebook Store Hook", () => {
 
     let sameId: string | null = null;
     act(() => {
-      sameId = result.current.reRunBlockInPlace(id1);
+      sameId = result.current.runBlock(
+        id1,
+        "ls -la",
+        mockShell,
+        "/test/cwd",
+        "main",
+      );
     });
 
     // Same block — no new block created

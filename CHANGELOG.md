@@ -61,6 +61,7 @@ This format follows rigorous open-source repository management standards.
 
 ### Refactors & Architecture
 
+- **webview**: Unified `promoteIdleBlock` and `reRunBlockInPlace` store actions into a single `runBlock` primitive. This eliminates dual execution paths for non-ghost blocks, ensuring a consistent data shape across all execution triggers.
 - **extension**: Converted manual `FLUXTERM_DEV_RELOAD` environment variable checks into native VS Code `context.extensionMode` evaluations to trigger dev auto-reloads.
 
 - **core**: Renamed structural codebase and variable references globally from `Flow`/`xflow` to `FluxTerm`/`fluxterm`.
