@@ -1,6 +1,6 @@
 <div align="center">
 
-# FluxTerm
+# Flux-Term
 
 **Block-based Terminal Workflow inside VS Code**
 
@@ -11,7 +11,7 @@ _A notebook-style terminal where commands are structured, reusable, and composab
 [![Version](https://img.shields.io/badge/version-1.1.0-success)](CHANGELOG.md)
 [![Marketplace](https://img.shields.io/visual-studio-marketplace/v/FluxTerm.flux-term?label=Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FluxTerm.flux-term)
 
-![FluxTerm Hero](https://raw.githubusercontent.com/0xdaksh-12/FluxTerm/main/assets/screenshots/01_empty_ui.png)
+![Flux-Term Hero](https://raw.githubusercontent.com/0xdaksh-12/FluxTerm/main/assets/screenshots/01_empty_ui.png)
 
 </div>
 
@@ -31,7 +31,7 @@ Developers repeat the same commands manually, lose context after closing a sessi
 
 ## The Solution
 
-FluxTerm introduces **Command Blocks** — the atomic unit of execution:
+Flux-Term introduces **Command Blocks** — the atomic unit of execution:
 
 - Each command runs in its own **isolated block** with its own shell process, CWD, and lifecycle
 - **Output is preserved** per block, independently scrollable and searchable
@@ -58,11 +58,11 @@ It's a hybrid of a terminal, a notebook (like Jupyter), and a command workflow s
 
 [![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code%20Marketplace-007ACC?logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FluxTerm.flux-term)
 
-Search **FluxTerm** in the VS Code Extensions panel, or click the badge above.
+Search **Flux-Term** in the VS Code Extensions panel, or click the badge above.
 
 ### From VSIX
 
-1. Download `fluxterm-1.1.0.vsix` from [Releases](https://github.com/0xdaksh-12/FluxTerm/releases)
+1. Download `flux-term-1.1.0.vsix` from [Releases](https://github.com/0xdaksh-12/FluxTerm/releases)
 2. Open VS Code → `Extensions` → `...` menu → **Install from VSIX...**
 3. Select the downloaded file and reload
 
@@ -70,7 +70,7 @@ Search **FluxTerm** in the VS Code Extensions panel, or click the badge above.
 
 ```bash
 git clone https://github.com/0xdaksh-12/FluxTerm.git
-cd FluxTerm
+cd Flux-Term
 pnpm install
 ```
 
@@ -81,8 +81,8 @@ Press `F5` in VS Code to launch the Extension Development Host.
 ## How to Use
 
 ```
-1. Open FluxTerm
-   → Run "FluxTerm: New File" from the Command Palette (Ctrl+Shift+P)
+1. Open Flux-Term
+   → Run "Flux-Term: New File" from the Command Palette (Ctrl+Shift+P)
    → Or create a file with the .ftx extension
 
 2. Type a command in the Command Block at the bottom
