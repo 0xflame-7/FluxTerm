@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { FluxTermEditorProvider } from "./extension/providers/FluxTermEditorProvider";
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "fluxterm" is now active!');
+  console.log('Congratulations, your extension "Flux-Term" is now active!');
 
   // Register the custom editor provider for .ftx files
   const provider = new FluxTermEditorProvider(context);
@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
         uriArg && uriArg instanceof vscode.Uri
           ? uriArg
           : await vscode.window.showSaveDialog({
-              filters: { "FluxTerm Files": ["ftx"] },
+              filters: { "Flux-Term Files": ["ftx"] },
               defaultUri: vscode.Uri.file("untitled.ftx"),
             });
 
@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
           uri,
           Buffer.from(JSON.stringify({}, null, 2)),
         );
-        // Open with FluxTerm editor
+        // Open with Flux-Term editor
         await vscode.commands.executeCommand(
           "vscode.openWith",
           uri,

@@ -245,3 +245,23 @@ Full replacement of the previous thin README with a structured showcase document
 - License and credits
 
 Screenshot paths (`assets/screenshots/01_*.png` – `06_*.png`) are pre-wired in the README and ready to be filled by capturing the running extension.
+
+---
+
+## Brand Rename: `FluxTerm` → `Flux-Term`
+
+**What changed**: All user-facing display strings, VS Code contribution point labels, HTML webview titles, save-dialog filter labels, and notification messages were updated from `FluxTerm` to `Flux-Term`.
+
+**Why**: Align the extension's user-visible branding with the official hyphenated product name (`Flux-Term`) consistently used in the README and marketplace `displayName`.
+
+**Scope — updated files:**
+- `package.json`: `"title": "Flux-Term: New File"`, `"displayName": "Flux-Term Editor"`
+- `src/extension.ts`: activation console log, "Flux-Term Files" save-dialog filter, inline comment
+- `src/extension/providers/FluxTermEditorProvider.ts`: `<title>Flux-Term Editor</title>` HTML, all `[Flux-Term EditorProvider]` log prefix strings
+- `src/webview/components/block/CwdEditor.tsx`: `Flux-Term: Invalid directory` warning notification message
+- `CHANGELOG.md`: header description tagline
+
+**What did NOT change (intentionally):**
+- TypeScript class/interface/variable identifiers (`FluxTermBlock`, `FluxTermService`, `FluxTermDocument`, `FluxTermCustomDocument`, `FluxTermEditorProvider`, `FluxTermDocumentSession`, `fluxTermService`, `useFluxTermDocument`) — hyphens are not valid in TypeScript identifiers.
+- VS Code command contribution IDs (`fluxterm.editor`, `fluxterm.newFile`) — these are stable API surface identifiers; changing them would be a breaking change requiring all users to update keybindings/settings.
+- VS Code Marketplace publisher ID (`FluxTerm`) in README badges and `package.json#publisher` — this is a live marketplace account identifier.

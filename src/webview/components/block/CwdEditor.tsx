@@ -157,7 +157,7 @@ export const CwdEditor: React.FC<CwdEditorProps> = ({
       } else {
         fluxTermService.notify(
           "warning",
-          `FluxTerm: Invalid directory — "${trimmed}" does not exist.`,
+          `Flux-Term: Invalid directory — "${trimmed}" does not exist.`,
         );
         inputRef.current?.focus();
       }

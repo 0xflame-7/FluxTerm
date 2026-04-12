@@ -31,13 +31,13 @@
     "commands": [
       {
         "command": "fluxterm.newFile",
-        "title": "FluxTerm: New File"
+        "title": "Flux-Term: New File"
       }
     ],
     "customEditors": [
       {
         "viewType": "fluxterm.editor",
-        "displayName": "FluxTerm Editor",
+        "displayName": "Flux-Term Editor",
         "selector": [
           {
             "filenamePattern": "*.ftx"
