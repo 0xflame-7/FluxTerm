@@ -129,13 +129,13 @@ increasingly hard to maintain. The execution dispatch logic (`handleSubmit`,
 `handleReRun`, `handleGhostDocSubmit`) should move into a dedicated hook
 (`useBlockDispatch` or similar).
 
-**3. No output virtualization.**
+**3. No output virtualization.** -> (Solved)
 `OutputArea` renders all visible lines into the DOM as plain `<div>` nodes. For
 long-running commands producing thousands of lines, this will cause serious
 performance issues. A windowed list (`react-window` or `react-virtual`) is the
 correct fix.
 
-**4. `CwdEditor` validation is path-listing-based.**
+**4. `CwdEditor` validation is path-listing-based.** -> (Solved)
 Validation calls `listDir(parentDir)` and checks if the leaf exists in the result.
 This fails for paths the extension cannot read (permission denied), paths with special
 characters, or very deep paths. A dedicated `stat`/`access` IPC call would be more
@@ -168,11 +168,11 @@ is sound at a small scale.
 
 ### Immediate priorities (polish / stability)
 
-- [ ] Output virtualization for large command outputs
+- [x] Output virtualization for large command outputs
 - [ ] Keyboard navigation between blocks (Tab / Arrow)
 - [x] `CwdEditor` validation robustness (stat-based, not listDir)
 - [ ] App.tsx refactor — extract `useBlockDispatch` hook
-- [ ] Resolve `reRunBlock` vs `promoteIdleBlock` duality (single execution entry point)
+- [x] Resolve `reRunBlock` vs `promoteIdleBlock` duality (single execution entry point)
 
 ### Medium-term features
 
