@@ -3,7 +3,7 @@
   "displayName": "FluxTerm",
   "description": "A notebook-style terminal where commands are structured, reusable, and composable — directly in VS Code.",
   "version": "1.1.0",
-  "publisher": "0xflame-7",
+  "publisher": "FluxTerm",
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
