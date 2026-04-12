@@ -267,9 +267,12 @@ export const OutputArea: React.FC<{
 
   const dynamicRowHeight = useDynamicRowHeight({ defaultRowHeight: 22 });
 
-  // Calculate a proportional height to prevent unnecessary empty space in a 300px block initially
-  // but cap it out at 300px for large runs. This replicates typical browser max-height behavior
-  const containerHeight = Math.min(flatItems.length * 22 + 40, 300);
+  // Calculate a proportional height capped at 300px.
+  // Header rows render slightly taller (~28px) so we weight them higher.
+  const estimatedHeight = flatItems.reduce((sum, item) => {
+    return sum + (item.type === "header" ? 30 : 28);
+  }, 0);
+  const containerHeight = Math.min(estimatedHeight, 300);
 
   return (
     <div style={{ height: containerHeight }}>

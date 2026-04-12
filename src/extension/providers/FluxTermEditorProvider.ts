@@ -48,6 +48,17 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
       documentData = {};
     }
 
+    // Safety-net: if any blocks were persisted with status="running" (e.g. the
+    // session was killed mid-execution before the webview could update), reset
+    // them to "error" so they don't show a phantom spinner on re-open.
+    if (documentData.blocks) {
+      for (const block of documentData.blocks) {
+        if (block.status === "running") {
+          block.status = "error";
+        }
+      }
+    }
+
     return new FluxTermCustomDocument(uri, documentData);
   }
 

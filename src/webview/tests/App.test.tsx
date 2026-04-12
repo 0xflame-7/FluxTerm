@@ -8,10 +8,11 @@ describe('App Integration', () => {
         vi.clearAllMocks();
     });
 
-    it('should render empty state initially', () => {
+    it('should render the ghost block input initially', () => {
         render(<App />);
-        expect(screen.getByText('FluxTerm Notebook')).toBeInTheDocument();
-        expect(screen.getByText('Type a command below to create a block')).toBeInTheDocument();
+        // The ghost block always renders a command input as the entry surface
+        const input = screen.getByPlaceholderText('Type a command...');
+        expect(input).toBeInTheDocument();
     });
 
     it('should populate blocks when init message is received', () => {

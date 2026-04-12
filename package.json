@@ -1,8 +1,8 @@
 {
   "name": "fluxterm",
   "displayName": "FluxTerm",
-  "description": "Shell Notebook",
-  "version": "1.0.0",
+  "description": "A notebook-style terminal where commands are structured, reusable, and composable — directly in VS Code.",
+  "version": "1.1.0",
   "publisher": "0xflame-7",
   "icon": "assets/icon.png",
   "repository": {
@@ -12,15 +12,18 @@
   "license": "Apache-2.0",
   "keywords": [
     "terminal",
-    "vscode",
     "shell",
-    "developer tools"
+    "notebook",
+    "developer tools",
+    "workflow"
   ],
   "engines": {
     "vscode": "^1.110.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Programming Languages",
+    "Notebooks"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
@@ -42,6 +45,75 @@
         ],
         "priority": "default"
       }
+    ],
+    "walkthroughs": [
+      {
+        "id": "fluxterm.gettingStarted",
+        "title": "Get Started with FluxTerm",
+        "description": "Learn how to use FluxTerm's block-based terminal workflow — structured, reusable, and composable.",
+        "steps": [
+          {
+            "id": "fluxterm.gettingStarted.openFile",
+            "title": "Open a FluxTerm File",
+            "description": "Create a new `.ftx` file via the Command Palette, or open an existing one.\n\n[Create a New FluxTerm File](command:fluxterm.newFile)",
+            "media": {
+              "image": "assets/walkthrough/step1_open.png",
+              "altText": "A .ftx file highlighted in the VS Code Explorer panel"
+            },
+            "completionEvents": [
+              "onCommand:fluxterm.newFile"
+            ]
+          },
+          {
+            "id": "fluxterm.gettingStarted.runFirst",
+            "title": "Run Your First Command",
+            "description": "Type any shell command in the Command Block at the bottom of the panel and press **Enter** to execute it. Output appears inline below the block.",
+            "media": {
+              "image": "assets/walkthrough/step2_run.png",
+              "altText": "A command block with 'echo Hello FluxTerm' typed, showing output below"
+            },
+            "completionEvents": [
+              "onContext:fluxterm.commandExecuted"
+            ]
+          },
+          {
+            "id": "fluxterm.gettingStarted.editCwd",
+            "title": "Change the Working Directory",
+            "description": "**Double-click** the path shown in a block's context bar to edit the working directory. Type a partial path and use **Tab** or **↑↓** to navigate autocomplete suggestions. Press **Enter** to commit.",
+            "media": {
+              "image": "assets/walkthrough/step3_cwd.png",
+              "altText": "The CWD editor showing a directory autocomplete dropdown"
+            },
+            "completionEvents": [
+              "onContext:fluxterm.cwdEdited"
+            ]
+          },
+          {
+            "id": "fluxterm.gettingStarted.rerun",
+            "title": "Re-run or Edit Any Block",
+            "description": "Hover over any completed Command Block to reveal the **floating toolbar**. Click the **Refresh** icon to re-run with the current command, or edit the command text in the block and press **Enter** to execute the updated version.",
+            "media": {
+              "image": "assets/walkthrough/step4_rerun.png",
+              "altText": "A completed block with the floating action toolbar visible on hover"
+            },
+            "completionEvents": [
+              "onContext:fluxterm.blockRerun"
+            ]
+          },
+          {
+            "id": "fluxterm.gettingStarted.markdown",
+            "title": "Add Markdown Documentation",
+            "description": "Click the **More (⋯)** button on any block's toolbar and select **Add Markdown Block** to insert a Markdown block. Use it to document your command workflows inline alongside your execution history.",
+            "media": {
+              "image": "assets/walkthrough/step5_markdown.png",
+              "altText": "A rendered markdown block showing a Setup Guide heading and bullet list"
+            },
+            "completionEvents": [
+              "onContext:fluxterm.markdownAdded"
+            ]
+          }
+        ]
+      }
     ]
   },
   "scripts": {
@@ -55,8 +127,8 @@
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "package": "pnpm run build:css && pnpm run check-types && pnpm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p . --outDir dist",
-    "watch-tests": "tsc -p . -w --outDir dist",
+    "compile-tests": "tsc -p tsconfig.test.json",
+    "watch-tests": "tsc -p tsconfig.test.json -w",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",

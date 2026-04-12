@@ -238,6 +238,21 @@ export class ExecutionEngine {
   }
 
   /**
+   * Returns the IDs of all blocks that currently have an active (non-completed)
+   * process in the registry. Used by the session during disposal to send
+   * synthetic `blockComplete` messages before killing the processes.
+   */
+  getActiveBlockIds(): string[] {
+    const ids: string[] = [];
+    for (const [id, rec] of this.registry.entries()) {
+      if (!rec.completed) {
+        ids.push(id);
+      }
+    }
+    return ids;
+  }
+
+  /**
    * Kill all running processes and clear the registry.
    * Called when the editor panel is disposed.
    *

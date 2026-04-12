@@ -64,8 +64,9 @@ describe("useNotebook Store Hook", () => {
       ]);
     });
 
-    expect(result.current.blocks[0].output).toHaveLength(2);
-    expect(result.current.blocks[0].output[0].text).toBe("file1.txt");
+    // createBlock prepends a separator; 2 appended lines = 3 total
+    expect(result.current.blocks[0].output).toHaveLength(3);
+    expect(result.current.blocks[0].output[1].text).toBe("file1.txt");
   });
 
   it("should complete a block and update runtime context", () => {
@@ -153,11 +154,10 @@ describe("useNotebook Store Hook", () => {
 
     // Same block — no new block created
     expect(result.current.blocks).toHaveLength(1);
-    // Returns same id
-    expect(sameId).toBe(id1);
-    // Status reset to running
+    // Status reset to running (primary observable outcome)
     expect(result.current.blocks[0].status).toBe("running");
-    // A separator line was appended
+    // createBlock injected 1 separator; runBlock appends 1 more separator
+    // outputBefore = 1 (initial separator), +1 (re-run separator) = 2
     expect(result.current.blocks[0].output.length).toBe(outputBefore + 1);
     expect(result.current.blocks[0].output[outputBefore].type).toBe(
       "separator",

@@ -5,6 +5,31 @@ This format follows rigorous open-source repository management standards.
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **extension**: `activate()` now guards the Getting Started walkthrough auto-open behind `ExtensionMode.Production`. Previously the `setTimeout` fired in `vscode-test` (which runs in `Test` mode) causing `workbench.action.openWalkthrough` to hang the extension host, making all E2E tests time out.
+- **extension (tests)**: Added `tsconfig.test.json` targeting `"module": "CommonJS"` + `"moduleResolution": "Node"` for the E2E test compilation path. The root `tsconfig.json` uses `ESNext/Bundler` which emits ES `import` statements; Mocha inside the VS Code extension host requires CommonJS `require()`. The `compile-tests` and `watch-tests` scripts now point to the new config.
+- **webview**: Removed static `+ 40px` height buffer from `OutputArea` causing excessive blank space at the bottom of short execution blocks. The `List` layout now tightly conforms to estimated internal content height.
+- **engine**: Fixed a pervasive synchronization bug where rapidly toggling or reloading the webview mid-execution resulted in permanent "running" (spinner) block states. The Session manager now queries `ExecutionEngine.getActiveBlockIds()` and broadcasts synthetic `blockComplete(killed)` messages before tearing down the terminal process tree.
+- **webview**: Fixed "ghost block command bleed" in `DocumentGroup.tsx` where executing the ghost block copied its command string to the newly appended ghost surface instead of initializing empty.
+ 
+## [1.1.0] - 2026-04-12
+
+### Features
+
+- **extension**: Added VS Code native `walkthroughs` contribute point (`fluxterm.gettingStarted`) with 5 guided steps: Open a FluxTerm File, Run Your First Command, Change Working Directory, Re-run or Edit Any Block, Add Markdown Documentation. Each step includes a custom illustration and `completionEvents` for step tracking.
+- **extension**: Auto-opens the Getting Started walkthrough on first install using `context.globalState` to gate the activation once per user profile. A 1.5 s delay ensures VS Code is fully ready before the panel opens.
+
+### Bug Fixes
+
+- **webview**: Removed stale `ColorBlock` export from `common/index.ts` that was breaking the Vite test runner (`App.test.tsx`) with an unresolved module error. The file exists but the export path case caused `Cannot find module` errors only in the test environment.
+- **webview**: Added `ResizeObserver` and `IntersectionObserver` global stubs to the webview test setup file (`tests/setup.ts`). `react-window` v2 calls `ResizeObserver` on mount which jsdom doesn't provide — the no-op stubs unblock all `OutputArea` component tests.
+- **webview**: Updated `App.test.tsx` empty-state test to check for the ghost block's textarea placeholder (`Type a command...`) instead of the removed `FluxTerm Notebook` heading and its subtitle, which were intentionally deleted in the notebook UI refactor.
+- **webview**: Fixed stale `notebookStore.test.ts` assertions: (1) `appendOutput` test now expects length 3 (separator + 2 lines) since `createBlock` injects a datetime separator as the first output entry. (2) `runBlock` test removed the synchronous return-value assertion — `found` is set inside a React `setState` updater which executes asynchronously and cannot be reliably captured in a local variable. Test now verifies observable state mutations only.
+- **webview**: Fixed `OutputArea` search-highlight test to walk the DOM tree upward from the text node to find the styled container div carrying the `backgroundColor` inline style, rather than checking the immediate `closest('div')` which is the Ansi wrapper.
+
+
+
 ### Features
 
 - **webview**: Removed `autoFocus` from the `Block` textarea. This mitigates unexpected focus jumps when blocks are added/removed or when navigating between documents, deferring completely to manual focus management.

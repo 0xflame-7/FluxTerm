@@ -28,9 +28,10 @@ export class FluxTermDocumentSession {
   /** Execution engine owned by this session. */
   private readonly engine: ExecutionEngine;
 
-  private readonly _onDidUpdateDocument = new vscode.EventEmitter<FluxTermDocument>();
+  private readonly _onDidUpdateDocument =
+    new vscode.EventEmitter<FluxTermDocument>();
   public readonly onDidUpdateDocument = this._onDidUpdateDocument.event;
-  
+
   private latestState: FluxTermDocument | null = null;
   private saveResolvers: ((doc: FluxTermDocument) => void)[] = [];
 
@@ -82,151 +83,158 @@ export class FluxTermDocumentSession {
       return;
     }
 
-        switch (message.type) {
-          case "init": {
-            // Resolve the live context asynchronously so we can provide
-            // the real cwd and git branch rather than stale or empty values.
-            const savedDoc = this.parseDocument();
-            const liveCwd = this.getCwd();
-            const liveBranch = await this.getGitBranch(liveCwd);
+    switch (message.type) {
+      case "init": {
+        // Resolve the live context asynchronously so we can provide
+        // the real cwd and git branch rather than stale or empty values.
+        const savedDoc = this.parseDocument();
+        const liveCwd = this.getCwd();
+        const liveBranch = await this.getGitBranch(liveCwd);
 
-            const context: FluxTermContext = {
-              cwd: liveCwd,
-              branch: liveBranch,
-              // The extension only knows the saved shell id (a string). The
-              // webview is responsible for matching FluxTermDocument.shell against
-              // the live shellList to restore the selected ResolvedShell.
-              shell: null,
-              connection: "local",
-            };
+        const context: FluxTermContext = {
+          cwd: liveCwd,
+          branch: liveBranch,
+          // The extension only knows the saved shell id (a string). The
+          // webview is responsible for matching FluxTermDocument.shell against
+          // the live shellList to restore the selected ResolvedShell.
+          shell: null,
+          connection: "local",
+        };
 
-            this.post({ type: "init", document: savedDoc, context });
-            Ext.info("[Session] Sent init with live context");
-            break;
-          }
+        this.post({ type: "init", document: savedDoc, context });
+        Ext.info("[Session] Sent init with live context");
+        break;
+      }
 
-          // Save Explict
-          case "update":
-            // Enqueue so concurrent updates are serialized.
-            this.enqueue(async () => {
-              this.latestState = message.document;
-              this._onDidUpdateDocument.fire(this.parseDocument());
-              Ext.info("[Session] Document marked as dirty");
+      // Save Explict
+      case "update":
+        // Enqueue so concurrent updates are serialized.
+        this.enqueue(async () => {
+          this.latestState = message.document;
+          this._onDidUpdateDocument.fire(this.parseDocument());
+          Ext.info("[Session] Document marked as dirty");
+        });
+        break;
+
+      // Save response
+      case "saveResponse":
+        this.latestState = message.document;
+        this.saveResolvers.forEach((resolve) => resolve(message.document));
+        this.saveResolvers = [];
+        break;
+
+      // Manual dirty
+      case "markDirty":
+        this._onDidUpdateDocument.fire(this.parseDocument());
+        break;
+
+      // Shell config
+      case "shellConfig":
+        this.enqueue(async () => {
+          const shells = await ShellResolver.resolve();
+          this.post({ type: "shellList", shells });
+        });
+        break;
+
+      // Block execution
+      case "execute": {
+        this._onDidUpdateDocument.fire(this.parseDocument());
+        const { blockId, command, shell, cwd } = message;
+        Ext.info(`[Session] Execute block ${blockId}: ${command}`);
+        // shell is a ResolvedShell object (path + args) — passed straight to engine.
+        this.engine.execute(blockId, command, shell, cwd);
+        break;
+      }
+
+      // Stdin
+      case "input": {
+        this._onDidUpdateDocument.fire(this.parseDocument());
+        const { blockId, text } = message;
+        Ext.info(`[Session] Input for block ${blockId}`);
+        this.engine.writeInput(blockId, text);
+        break;
+      }
+
+      // Kill
+      case "killBlock": {
+        this._onDidUpdateDocument.fire(this.parseDocument());
+        const { blockId } = message;
+        Ext.info(`[Session] Kill block ${blockId}`);
+        this.engine.killBlock(blockId);
+        break;
+      }
+
+      // Log relay
+      case "log":
+        Ext.info(message.message);
+        break;
+
+      // Directory listing for CWD autocomplete
+      case "listDir": {
+        const { requestId, path: dirPath } = message;
+        this.enqueue(async () => {
+          try {
+            const dirEntries = await fs.readdir(dirPath, {
+              withFileTypes: true,
             });
-            break;
-
-          // Save response
-          case "saveResponse":
-            this.latestState = message.document;
-            this.saveResolvers.forEach((resolve) => resolve(message.document));
-            this.saveResolvers = [];
-            break;
-
-          // Manual dirty 
-          case "markDirty":
-            this._onDidUpdateDocument.fire(this.parseDocument());
-            break;
-
-          // Shell config
-          case "shellConfig":
-            this.enqueue(async () => {
-              const shells = await ShellResolver.resolve();
-              this.post({ type: "shellList", shells });
+            const dirs = dirEntries
+              .filter((e) => e.isDirectory() && !e.name.startsWith("."))
+              .map((e) => e.name)
+              .sort();
+            this.post({ type: "dirList", requestId, entries: dirs });
+          } catch {
+            this.post({
+              type: "dirList",
+              requestId,
+              entries: [],
+              error: "invalid",
             });
-            break;
-
-          // Block execution
-          case "execute": {
-            this._onDidUpdateDocument.fire(this.parseDocument());
-            const { blockId, command, shell, cwd } = message;
-            Ext.info(`[Session] Execute block ${blockId}: ${command}`);
-            // shell is a ResolvedShell object (path + args) — passed straight to engine.
-            this.engine.execute(blockId, command, shell, cwd);
-            break;
           }
+        });
+        break;
+      }
 
-          // Stdin
-          case "input": {
-            this._onDidUpdateDocument.fire(this.parseDocument());
-            const { blockId, text } = message;
-            Ext.info(`[Session] Input for block ${blockId}`);
-            this.engine.writeInput(blockId, text);
-            break;
-          }
-
-          // Kill
-          case "killBlock": {
-            this._onDidUpdateDocument.fire(this.parseDocument());
-            const { blockId } = message;
-            Ext.info(`[Session] Kill block ${blockId}`);
-            this.engine.killBlock(blockId);
-            break;
-          }
-
-          // Log relay
-          case "log":
-            Ext.info(message.message);
-            break;
-
-          // Directory listing for CWD autocomplete
-          case "listDir": {
-            const { requestId, path: dirPath } = message;
-            this.enqueue(async () => {
-              try {
-                const dirEntries = await fs.readdir(dirPath, { withFileTypes: true });
-                const dirs = dirEntries
-                  .filter((e) => e.isDirectory() && !e.name.startsWith("."))
-                  .map((e) => e.name)
-                  .sort();
-                this.post({ type: "dirList", requestId, entries: dirs });
-              } catch {
-                this.post({ type: "dirList", requestId, entries: [], error: "invalid" });
-              }
+      // Path validation
+      case "statPath": {
+        const { requestId, path: statPath } = message;
+        this.enqueue(async () => {
+          try {
+            const stats = await fs.stat(statPath);
+            this.post({
+              type: "pathStat",
+              requestId,
+              exists: true,
+              isDirectory: stats.isDirectory(),
             });
-            break;
-          }
-
-          // Path validation
-          case "statPath": {
-            const { requestId, path: statPath } = message;
-            this.enqueue(async () => {
-              try {
-                const stats = await fs.stat(statPath);
-                this.post({
-                  type: "pathStat",
-                  requestId,
-                  exists: true,
-                  isDirectory: stats.isDirectory(),
-                });
-              } catch (e: any) {
-                this.post({
-                  type: "pathStat",
-                  requestId,
-                  exists: false,
-                  isDirectory: false,
-                  error: e.message || String(e),
-                });
-              }
+          } catch (e: any) {
+            this.post({
+              type: "pathStat",
+              requestId,
+              exists: false,
+              isDirectory: false,
+              error: e.message || String(e),
             });
-            break;
           }
+        });
+        break;
+      }
 
-          // VS Code notification
-          case "notify": {
-            const msg = message.message;
-            if (message.level === "warning") {
-              vscode.window.showWarningMessage(msg);
-            } else if (message.level === "error") {
-              vscode.window.showErrorMessage(msg);
-            } else {
-              vscode.window.showInformationMessage(msg);
-            }
-            break;
-          }
-
-          default:
-            break;
+      // VS Code notification
+      case "notify": {
+        const msg = message.message;
+        if (message.level === "warning") {
+          vscode.window.showWarningMessage(msg);
+        } else if (message.level === "error") {
+          vscode.window.showErrorMessage(msg);
+        } else {
+          vscode.window.showInformationMessage(msg);
         }
+        break;
+      }
+
+      default:
+        break;
+    }
   }
 
   /**
@@ -292,7 +300,7 @@ export class FluxTermDocumentSession {
     return new Promise((resolve) => {
       // Fallback timeout in case the webview doesn't respond
       const timer = setTimeout(() => {
-        this.saveResolvers = this.saveResolvers.filter(r => r !== resolve);
+        this.saveResolvers = this.saveResolvers.filter((r) => r !== resolve);
         resolve(this.parseDocument());
       }, 2000);
 
@@ -313,24 +321,24 @@ export class FluxTermDocumentSession {
     const json = JSON.stringify(docState, null, 2);
 
     const edit = new vscode.WorkspaceEdit();
-    
+
     // Convert string back to binary to write to fs via workspace edit
     // Wait, WorkspaceEdit replace/insert only works for TextDocuments!
     // But we are a custom editor, there is no TextDocument anymore.
     // However, we can use WorkspaceEdit createFile and then fs.writeFile.
-    // Or we can just use vscode.workspace.fs.writeFile, but the prompt specifically asked 
-    // to "apply a WorkspaceEdit". A WorkspaceEdit can't directly replace arbitrary file contents 
+    // Or we can just use vscode.workspace.fs.writeFile, but the prompt specifically asked
+    // to "apply a WorkspaceEdit". A WorkspaceEdit can't directly replace arbitrary file contents
     // without a TextDocument, unless we open one or use `edit.createFile` / `edit.deleteFile`.
-    // Actually, setting file contents via WorkspaceEdit isn't natively supported 
+    // Actually, setting file contents via WorkspaceEdit isn't natively supported
     // for non-TextDocument unless using `edit.replace` on a known VS Code TextDocument.
     // We will apply an empty WorkspaceEdit to fulfill the semantics of triggering TS event,
     // and then write via fs.writeFile.
     edit.createFile(targetUri, { overwrite: true, ignoreIfExists: true });
     await vscode.workspace.applyEdit(edit);
-    
+
     await vscode.workspace.fs.writeFile(targetUri, Buffer.from(json));
-    
-    // Update the custom document's underlying data 
+
+    // Update the custom document's underlying data
     this.document.update(docState);
     Ext.info(`[Session] Document saved to disk: ${targetUri.fsPath}`);
   }
@@ -380,6 +388,26 @@ export class FluxTermDocumentSession {
       return;
     }
     this.isDisposed = true;
+
+    // Before killing the engine, notify the webview that every in-flight block
+    // has been terminated. This prevents stale "running" status on next open.
+    // The panel webview is still alive here (onDidDispose fires before teardown).
+    const activeBlockIds = this.engine.getActiveBlockIds();
+    for (const blockId of activeBlockIds) {
+      try {
+        this.panel.webview.postMessage({
+          type: "blockComplete",
+          blockId,
+          exitCode: null,
+          finalCwd: null,
+          finalBranch: null,
+          status: "killed",
+        });
+      } catch {
+        // Panel may be in a partially-disposed state; safe to ignore.
+      }
+    }
+
     this.engine.dispose();
     this._onDidUpdateDocument.dispose();
     this.disposables.forEach((d) => d.dispose());

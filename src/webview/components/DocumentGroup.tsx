@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Block, MarkdownBlock } from "./block";
 import { BlockDocument } from "./BlockDocument";
-import { FluxTermContext, ResolvedShell, BlockDocumentMeta, FluxTermBlock } from "../../types/MessageProtocol";
+import {
+  FluxTermContext,
+  ResolvedShell,
+  BlockDocumentMeta,
+  FluxTermBlock,
+} from "../../types/MessageProtocol";
 import { fluxTermService } from "../services/FluxTermService";
 
 export interface DocumentGroupProps {
@@ -19,15 +24,34 @@ export interface DocumentGroupProps {
     branch: string | null,
     documentId?: string,
     command?: string,
-    type?: "terminal" | "markdown"
+    type?: "terminal" | "markdown",
   ) => string;
   actions: {
     handleDocumentRename: (docId: string, name: string) => void;
     handleDeleteDocument: (docId: string) => void;
-    handleGhostSubmit: (docId: string, cmd: string, shell: ResolvedShell | null, cwdOverride?: string) => void;
-    handleBlockSubmit: (blockId: string, cmd: string, shell: ResolvedShell | null, cwdOverride?: string) => void;
-    handleAddAfter: (afterBlockId: string, docId: string, type?: "terminal" | "markdown") => void;
-    handleReRun: (blockId: string, cmd: string, cwd: string, shell: ResolvedShell | null) => void;
+    handleGhostSubmit: (
+      docId: string,
+      cmd: string,
+      shell: ResolvedShell | null,
+      cwdOverride?: string,
+    ) => void;
+    handleBlockSubmit: (
+      blockId: string,
+      cmd: string,
+      shell: ResolvedShell | null,
+      cwdOverride?: string,
+    ) => void;
+    handleAddAfter: (
+      afterBlockId: string,
+      docId: string,
+      type?: "terminal" | "markdown",
+    ) => void;
+    handleReRun: (
+      blockId: string,
+      cmd: string,
+      cwd: string,
+      shell: ResolvedShell | null,
+    ) => void;
     handleClearOutput: (blockId: string) => void;
   };
 }
@@ -51,7 +75,8 @@ export function DocumentGroup({
   const isAnyRunning = docBlocks.some((b) => b.status === "running");
 
   // BUG 4 FIX: ghost block CWD inherits from the last completed block in THIS document
-  const lastDocCwd = docBlocks.filter((b) => b.finalCwd).at(-1)?.finalCwd ?? baseContext.cwd;
+  const lastDocCwd =
+    docBlocks.filter((b) => b.finalCwd).at(-1)?.finalCwd ?? baseContext.cwd;
 
   return (
     <BlockDocument
@@ -69,7 +94,7 @@ export function DocumentGroup({
       onDelete={() => actions.handleDeleteDocument(doc.id)}
     >
       {/* Real blocks — each gets its own per-block context (shell from block.shell) */}
-      {docBlocks.map((block) => (
+      {docBlocks.map((block) =>
         block.type === "markdown" ? (
           <MarkdownBlock
             key={block.id}
@@ -82,8 +107,12 @@ export function DocumentGroup({
               deleteBlock(block.id);
               fluxTermService.markDirty();
             }}
-            onAddTerminalAfter={() => actions.handleAddAfter(block.id, doc.id, "terminal")}
-            onAddMarkdownAfter={() => actions.handleAddAfter(block.id, doc.id, "markdown")}
+            onAddTerminalAfter={() =>
+              actions.handleAddAfter(block.id, doc.id, "terminal")
+            }
+            onAddMarkdownAfter={() =>
+              actions.handleAddAfter(block.id, doc.id, "markdown")
+            }
           />
         ) : (
           <Block
@@ -103,14 +132,16 @@ export function DocumentGroup({
               actions.handleReRun(block.id, cmd, cwd, shell)
             }
             onClearOutput={() => actions.handleClearOutput(block.id)}
-            onAddAfter={(cmd, cwd, shell, type) => actions.handleAddAfter(block.id, doc.id, type)}
+            onAddAfter={(cmd, cwd, shell, type) =>
+              actions.handleAddAfter(block.id, doc.id, type)
+            }
             onKill={() => fluxTermService.killBlock(block.id)}
             onCwdChange={(newCwd) => {
               if (block.status === "idle") updateBlockCwd(block.id, newCwd);
             }}
           />
-        )
-      ))}
+        ),
+      )}
 
       {/* Ghost Block — trailing entry surface for this document */}
       <Block
@@ -119,9 +150,11 @@ export function DocumentGroup({
         isGhost
         ghostCommand={ghostCmd}
         onGhostCommandChange={setGhostCmd}
-        onSubmit={(cmd, shell, cwdOverride) =>
-          actions.handleGhostSubmit(doc.id, cmd, shell, cwdOverride)
-        }
+        onSubmit={(cmd, shell, cwdOverride) => {
+          actions.handleGhostSubmit(doc.id, cmd, shell, cwdOverride);
+          setGhostCmd("");
+          setGhostCwd(""); // Ensure cwd override is also wiped when ghost block cycles
+        }}
         context={{ ...baseContext, cwd: lastDocCwd }}
         availableShells={shells}
         onShellChange={() => {}}
@@ -135,7 +168,7 @@ export function DocumentGroup({
               baseContext.branch ?? null,
               doc.id,
               cmd,
-              type
+              type,
             );
             setGhostCmd("");
             setGhostCwd("");

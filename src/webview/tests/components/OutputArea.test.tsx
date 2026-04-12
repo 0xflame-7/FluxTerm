@@ -63,10 +63,20 @@ describe('OutputArea Component', () => {
             { text: 'not here', type: 'stdout' }
         ]);
         render(<OutputArea block={block} searchQuery="find" />);
-        
-        const row = screen.getByText('find me').closest('div');
-        expect(row).not.toBeNull();
-        // Check computed style or inline style
-        expect(row?.style.backgroundColor).toBeTruthy();
+
+        // The highlighted item's text is rendered inside an Ansi span; walk up
+        // to find the styled container div that carries the backgroundColor.
+        const textEl = screen.getByText('find me');
+        // Traverse up looking for a div with a non-empty backgroundColor style
+        let el: HTMLElement | null = textEl;
+        let found = false;
+        while (el) {
+            if (el.style?.backgroundColor) {
+                found = true;
+                break;
+            }
+            el = el.parentElement;
+        }
+        expect(found).toBe(true);
     });
 });

@@ -122,7 +122,7 @@ new block) and `promoteIdleBlock` (mutates in-place). The distinction is subtle 
 the two paths have slightly different data shapes. As the execution flow grows, this
 duality is a source of bugs.
 
-**2. App.tsx is a coordination monolith.**
+**2. App.tsx is a coordination monolith.** -> (Solved)
 `App.tsx` (~550 lines) owns document state, ghost command strings, all execution
 dispatch, and renders the full component tree. As features grow this will become
 increasingly hard to maintain. The execution dispatch logic (`handleSubmit`,
@@ -141,7 +141,7 @@ This fails for paths the extension cannot read (permission denied), paths with s
 characters, or very deep paths. A dedicated `stat`/`access` IPC call would be more
 correct.
 
-**5. `autoFocus` on ghost block textarea.**
+**5. `autoFocus` on ghost block textarea.** -> (Solved)
 The ghost block textarea uses `autoFocus`. This can cause unexpected focus behavior
 when blocks are added/removed or when navigating between documents. The new
 document `mousedown` focus handler partially mitigates this but the `autoFocus`

@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node", "mocha"]
+  },
+  "include": [
+    "src/extension/**/*.ts",
+    "src/tests/extension/**/*.ts",
+    "src/types/**/*.ts",
+    "src/utils/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/webview/**",
+    "src/tests/unit/**",
+    "src/tests/integration/**"
+  ]
+}
