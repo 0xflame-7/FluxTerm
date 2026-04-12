@@ -24,6 +24,12 @@ export interface FluxTermBlock {
   /** The command string the user submitted. */
   command: string;
 
+  /** 
+   * Type of the block. If not present, implies "terminal".
+   * "markdown" blocks use the command property for the markdown source text.
+   */
+  type?: "terminal" | "markdown";
+
   /**
    * ID of the BlockDocument this block belongs to.
    * Blocks without a documentId belong to the default (first) document.

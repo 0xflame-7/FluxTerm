@@ -3,7 +3,7 @@ import { useFluxTermDocument } from "./hooks/useFluxTermDocument";
 import { useShellConfig } from "./hooks/useShellConfig";
 import { useNotebook } from "./store/notebookStore";
 import { useBlockExecution } from "./hooks/useBlockExecution";
-import { Block } from "./components/block";
+import { Block, MarkdownBlock } from "./components/block";
 import { BlockDocument } from "./components/BlockDocument";
 import { fluxTermService } from "./services/FluxTermService";
 import {
@@ -53,6 +53,7 @@ export default function App() {
     resetNotebook,
     spliceBlockAfter,
     updateBlockCwd,
+    updateBlockCommand,
   } = useNotebook(docContext, []);
 
   //  Document Groups
@@ -291,7 +292,7 @@ export default function App() {
    * Inherits shell and cwd from the source block — not from a global context.
    */
   const handleAddAfter = useCallback(
-    (afterBlockId: string, docId: string) => {
+    (afterBlockId: string, docId: string, type: "terminal" | "markdown" = "terminal") => {
       const orig = blocks.find((b) => b.id === afterBlockId);
       if (!orig) return;
       // Inherit the source block's shell and its post-execution cwd/branch
@@ -301,6 +302,8 @@ export default function App() {
         orig.finalCwd ?? orig.cwd,
         orig.finalBranch ?? orig.branch,
         docId,
+        "",
+        type
       );
       fluxTermService.markDirty();
     },
@@ -402,33 +405,50 @@ export default function App() {
           >
             {/* Real blocks — each gets its own per-block context (shell from block.shell) */}
             {docBlocks.map((block) => (
-              <Block
-                key={block.id}
-                block={block}
-                context={{ ...baseContext, shell: block.shell }}
-                availableShells={shells}
-                onShellChange={() => {
-                  /* handled locally in Block via localShell */
-                }}
-                onSubmit={(cmd, shell, cwdOverride) =>
-                  handleBlockSubmit(block.id, cmd, shell, cwdOverride)
-                }
-                onDelete={() => {
-                  deleteBlock(block.id);
-                  fluxTermService.markDirty();
-                }}
-                onReRun={(cmd, cwd, shell) =>
-                  handleReRun(block.id, cmd, cwd, shell)
-                }
-                onClearOutput={() => handleClearOutput(block.id)}
-                onAddAfter={(cmd, cwd, shell) => handleAddAfter(block.id, doc.id)}
-                onKill={() => fluxTermService.killBlock(block.id)}
-                onCwdChange={(newCwd) => {
-                  // For idle blocks, persist the CWD into the store so it survives re-renders.
-                  // For completed blocks it is kept in Block's localCwd state only.
-                  if (block.status === "idle") updateBlockCwd(block.id, newCwd);
-                }}
-              />
+              block.type === "markdown" ? (
+                <MarkdownBlock
+                  key={block.id}
+                  block={block}
+                  onUpdate={(text) => {
+                    updateBlockCommand(block.id, text);
+                    fluxTermService.markDirty();
+                  }}
+                  onDelete={() => {
+                    deleteBlock(block.id);
+                    fluxTermService.markDirty();
+                  }}
+                  onAddTerminalAfter={() => handleAddAfter(block.id, doc.id, "terminal")}
+                  onAddMarkdownAfter={() => handleAddAfter(block.id, doc.id, "markdown")}
+                />
+              ) : (
+                <Block
+                  key={block.id}
+                  block={block}
+                  context={{ ...baseContext, shell: block.shell }}
+                  availableShells={shells}
+                  onShellChange={() => {
+                    /* handled locally in Block via localShell */
+                  }}
+                  onSubmit={(cmd, shell, cwdOverride) =>
+                    handleBlockSubmit(block.id, cmd, shell, cwdOverride)
+                  }
+                  onDelete={() => {
+                    deleteBlock(block.id);
+                    fluxTermService.markDirty();
+                  }}
+                  onReRun={(cmd, cwd, shell) =>
+                    handleReRun(block.id, cmd, cwd, shell)
+                  }
+                  onClearOutput={() => handleClearOutput(block.id)}
+                  onAddAfter={(cmd, cwd, shell, type) => handleAddAfter(block.id, doc.id, type)}
+                  onKill={() => fluxTermService.killBlock(block.id)}
+                  onCwdChange={(newCwd) => {
+                    // For idle blocks, persist the CWD into the store so it survives re-renders.
+                    // For completed blocks it is kept in Block's localCwd state only.
+                    if (block.status === "idle") updateBlockCwd(block.id, newCwd);
+                  }}
+                />
+              )
             ))}
 
             {/* Ghost Block — trailing entry surface for this document */}
@@ -448,7 +468,7 @@ export default function App() {
               onShellChange={() => {
                 /* handled locally in Block via localShell */
               }}
-              onAddAfter={(cmd, cwd, shell) => {
+              onAddAfter={(cmd, cwd, shell, type) => {
                 if (cmd.trim() && shell) {
                   const effectiveCwd = ghostCwds[doc.id] ?? lastDocCwd;
                   spliceBlockAfter(
@@ -457,14 +477,15 @@ export default function App() {
                     effectiveCwd,
                     baseContext.branch ?? null,
                     doc.id,
-                    cmd
+                    cmd,
+                    type
                   );
                   setGhostCommands((prev) => ({ ...prev, [doc.id]: "" }));
                   setGhostCwds((prev) => ({ ...prev, [doc.id]: "" }));
                   fluxTermService.markDirty();
                 } else {
                   const last = docBlocks[docBlocks.length - 1];
-                  if (last) handleAddAfter(last.id, doc.id);
+                  if (last) handleAddAfter(last.id, doc.id, type);
                 }
               }}
               onCwdChange={(newCwd) =>
@@ -497,7 +518,7 @@ export default function App() {
           onShellChange={() => {
             /* handled locally in Block via localShell */
           }}
-          onAddAfter={(cmd, cwd, shell) => {
+          onAddAfter={(cmd, cwd, shell, type) => {
             if (cmd.trim() && shell) {
               const newDocId = generateId();
               setDocuments((prev) => {
@@ -512,7 +533,8 @@ export default function App() {
                 effectiveCwd,
                 baseContext.branch ?? null,
                 newDocId,
-                cmd
+                cmd,
+                type
               );
               setGhostDocCommand("");
               setGhostDocCwd("");

@@ -88,6 +88,7 @@ export interface UseNotebookReturn {
     branch: string | null,
     documentId?: string,
     command?: string,
+    type?: "terminal" | "markdown",
   ) => string;
 
   /**
@@ -96,6 +97,12 @@ export interface UseNotebookReturn {
    * Used by CwdEditor when the user edits the path before submitting.
    */
   updateBlockCwd: (blockId: string, cwd: string) => void;
+
+  /**
+   * Directly mutate a block's command text.
+   * Exclusively limits edits without initiating terminal engine executions.
+   */
+  updateBlockCommand: (blockId: string, command: string) => void;
 }
 
 /**
@@ -410,6 +417,7 @@ export function useNotebook(
       branch: string | null,
       documentId?: string,
       command: string = "",
+      type: "terminal" | "markdown" = "terminal"
     ): string => {
       const id = generateId();
       setState((prev) =>
@@ -428,6 +436,7 @@ export function useNotebook(
             id,
             seq,
             command,
+            type,
             shell,
             cwd,
             branch,
@@ -466,6 +475,21 @@ export function useNotebook(
     );
   }, []);
 
+  /**
+   * Directly mutate a block's command text.
+   * Useful for text-only elements (markdown) or tracking silent state.
+   */
+  const updateBlockCommand = useCallback((blockId: string, command: string): void => {
+    setState((prev) =>
+      produce(prev, (draft) => {
+        const block = draft.blocks.find((b) => b.id === blockId);
+        if (block) {
+          block.command = command;
+        }
+      })
+    );
+  }, []);
+
   return {
     blocks: state.blocks,
     runtimeContext: state.runtimeContext,
@@ -481,5 +505,6 @@ export function useNotebook(
     resetNotebook,
     spliceBlockAfter,
     updateBlockCwd,
+    updateBlockCommand,
   };
 }

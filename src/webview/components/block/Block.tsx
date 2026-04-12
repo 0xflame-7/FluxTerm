@@ -53,7 +53,7 @@ export interface BlockProps {
   onDelete?: () => void;
   onReRun?: (cmd: string, cwd: string, shell: ResolvedShell | null) => void;
   onClearOutput?: () => void;
-  onAddAfter?: (cmd: string, cwd: string, shell: ResolvedShell | null) => void;
+  onAddAfter?: (cmd: string, cwd: string, shell: ResolvedShell | null, type?: "terminal" | "markdown") => void;
   onKill?: () => void;
   /**
    * Called when CwdEditor commits a new path for this block.
@@ -360,14 +360,24 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
           }}
         >
           {/* Add */}
-          <Tooltip content="Add block below">
-            <button className="block-tb-btn" onClick={() => onAddAfter?.(commandValue, localCwd, localShell)}>
-              <span
-                className="codicon codicon-add"
-                style={{ fontSize: "14px" }}
-              />
-            </button>
-          </Tooltip>
+          <div className="flex items-center gap-0.5">
+            <Tooltip content="Add terminal below">
+              <button className="block-tb-btn" onClick={() => onAddAfter?.(commandValue, localCwd, localShell, "terminal")}>
+                <span
+                  className="codicon codicon-add"
+                  style={{ fontSize: "14px" }}
+                />
+              </button>
+            </Tooltip>
+            <Tooltip content="Add markdown below">
+              <button className="block-tb-btn" onClick={() => onAddAfter?.(commandValue, localCwd, localShell, "markdown")}>
+                <span
+                  className="codicon codicon-markdown"
+                  style={{ fontSize: "14px" }}
+                />
+              </button>
+            </Tooltip>
+          </div>
 
           {/* Stop / Refresh */}
           {isRunning ? (
