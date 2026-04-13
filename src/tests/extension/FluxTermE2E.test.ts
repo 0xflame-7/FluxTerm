@@ -21,7 +21,7 @@ suite("FluxTerm Electron E2E Workflow Test Suite", () => {
     );
 
     // Get extension API
-    const ext = vscode.extensions.getExtension("0xflame-7.fluxterm");
+    const ext = vscode.extensions.getExtension("FluxTerm.flux_term");
     if (!ext) {
       throw new Error("Extension not found");
     }

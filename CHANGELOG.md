@@ -7,6 +7,8 @@ This format follows rigorous open-source repository management standards.
 
 ### Bug Fixes
 
+- **extension (tests)**: Fixed `test:extension` suite failing with `Error: Extension not found`. `.vscode-test.mjs` was missing `extensionDevelopmentPath`, so VS Code launched without the extension registered. Added the project root as `extensionDevelopmentPath`. Also corrected stale extension ID `"0xflame-7.fluxterm"` in `FluxTermE2E.test.ts` and `FluxTermEditorProvider.test.ts` to `"FluxTerm.flux_term"` (matching the current `package.json` publisher and name).
+
 - **extension (tests)**: Added `tsconfig.test.json` targeting `"module": "CommonJS"` + `"moduleResolution": "Node"` for the E2E test compilation path. The root `tsconfig.json` uses `ESNext/Bundler` which emits ES `import` statements; Mocha inside the VS Code extension host requires CommonJS `require()`. The `compile-tests` and `watch-tests` scripts now point to the new config.
 - **webview**: Removed static `+ 40px` height buffer from `OutputArea` causing excessive blank space at the bottom of short execution blocks. The `List` layout now tightly conforms to estimated internal content height.
 - **engine**: Fixed a pervasive synchronization bug where rapidly toggling or reloading the webview mid-execution resulted in permanent "running" (spinner) block states. The Session manager now queries `ExecutionEngine.getActiveBlockIds()` and broadcasts synthetic `blockComplete(killed)` messages before tearing down the terminal process tree.

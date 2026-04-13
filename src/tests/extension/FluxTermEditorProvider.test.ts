@@ -23,7 +23,7 @@ suite('FluxTermEditorProvider Test Suite', () => {
 
     test('Should register fluxterm.editor custom editor and open document', async () => {
         // Ensure extension is activated
-        const ext = vscode.extensions.getExtension('0xflame-7.fluxterm');
+        const ext = vscode.extensions.getExtension('FluxTerm.flux_term');
         if (ext && !ext.isActive) {
             await ext.activate();
         }
