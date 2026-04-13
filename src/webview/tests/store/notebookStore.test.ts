@@ -1,9 +1,9 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, beforeEach } from "vitest";
 import { useNotebook } from "../../store/notebookStore";
-import { FluxTermContext, ResolvedShell } from "../../../types/MessageProtocol";
+import { FluxBookContext, ResolvedShell } from "../../../types/MessageProtocol";
 
-const mockContext: FluxTermContext = {
+const mockContext: FluxBookContext = {
   cwd: "/test/cwd",
   branch: "main",
   shell: null,

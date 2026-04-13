@@ -1,13 +1,15 @@
 # Changelog
 
-All notable changes to the `src/` core of the "Flux_term" extension will be documented in this file, emphasizing development impact and functional changes.
+All notable changes to the `src/` core of the "FlexBook" extension will be documented in this file, emphasizing development impact and functional changes.
 This format follows rigorous open-source repository management standards.
 
 ## [Unreleased]
 
 ### Bug Fixes
 
-- **extension (tests)**: Fixed `test:extension` suite failing with `Error: Extension not found`. `.vscode-test.mjs` was missing `extensionDevelopmentPath`, so VS Code launched without the extension registered. Added the project root as `extensionDevelopmentPath`. Also corrected stale extension ID `"0xflame-7.fluxterm"` in `FluxTermE2E.test.ts` and `FluxTermEditorProvider.test.ts` to `"FluxTerm.flux_term"` (matching the current `package.json` publisher and name).
+- **core**: Complete rebrand from `FluxTerm` → `FluxBook` across all TypeScript identifiers, filenames, and user-facing strings. All classes (`FluxBookEditorProvider`, `FluxBookDocumentSession`, `FluxBookCustomDocument`, `FluxBookDocument`, `FluxBookBlock`, `FluxBookContext`, `FluxBookService`), hooks (`useFluxBookDocument`, `fluxBookService`), and source files (`FluxBookEditorProvider.ts`, `FluxBookDocumentSession.ts`, `FluxBookCustomDocument.ts`, `FluxBookService.ts`, `useFluxBookDocument.ts`) renamed. `package.json` `name` updated to `"flexbook"` (valid `vsce` identifier — no underscores), `displayName` to `"FlexBook"`. VS Code contribution IDs updated to `flexbook.editor` / `flexbook.newFile`.
+
+- **extension (tests)**: Fixed `test:extension` suite failing with `Error: Extension not found`. `.vscode-test.mjs` was missing `extensionDevelopmentPath`, so VS Code launched without the extension registered. Added the project root as `extensionDevelopmentPath`. Also corrected stale extension ID `"0xflame-7.fluxterm"` in `FluxTermE2E.test.ts` and `FluxTermEditorProvider.test.ts` to `"FluxTerm.flexbook"` (matching the current `package.json` publisher and name).
 
 - **extension (tests)**: Added `tsconfig.test.json` targeting `"module": "CommonJS"` + `"moduleResolution": "Node"` for the E2E test compilation path. The root `tsconfig.json` uses `ESNext/Bundler` which emits ES `import` statements; Mocha inside the VS Code extension host requires CommonJS `require()`. The `compile-tests` and `watch-tests` scripts now point to the new config.
 - **webview**: Removed static `+ 40px` height buffer from `OutputArea` causing excessive blank space at the bottom of short execution blocks. The `List` layout now tightly conforms to estimated internal content height.
@@ -18,7 +20,7 @@ This format follows rigorous open-source repository management standards.
 
 ### Refactors \& Architecture
 
-- **core**: Renamed all user-facing display strings, HTML titles, VS Code contribution labels, and notification messages from `FluxTerm` to `Flux_term`. Internal TypeScript identifiers (`FluxTermBlock`, `FluxTermService`, etc.) and VS Code marketplace publisher IDs are unchanged as they cannot use hyphens.
+- **core**: Renamed all user-facing display strings, HTML titles, VS Code contribution labels, and notification messages from `FluxTerm` to `FlexBook`. Internal TypeScript identifiers (`FluxTermBlock`, `FluxTermService`, etc.) and VS Code marketplace publisher IDs are unchanged as they cannot use hyphens.
 
 ## [1.1.0] - 2026-04-12
 

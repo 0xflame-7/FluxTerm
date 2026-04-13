@@ -1,18 +1,18 @@
 import { useCallback } from "react";
-import { fluxTermService } from "../services/FluxTermService";
+import { fluxBookService } from "../services/FluxBookService";
 import {
-  FluxTermContext,
+  FluxBookContext,
   ResolvedShell,
   BlockDocumentMeta,
-  FluxTermBlock,
+  FluxBookBlock,
 } from "../../types/MessageProtocol";
 import { generateId } from "../../utils/helper";
 
 export const DEFAULT_DOC_NAME = "Workspace";
 
 export interface UseAppActionsProps {
-  blocks: FluxTermBlock[];
-  baseContext: FluxTermContext;
+  blocks: FluxBookBlock[];
+  baseContext: FluxBookContext;
   setDocuments: React.Dispatch<React.SetStateAction<BlockDocumentMeta[]>>;
   persistDocuments: (updated: BlockDocumentMeta[]) => void;
   createBlock: (
@@ -72,7 +72,7 @@ export function useAppActions({
         persistDocuments(updated);
         return updated;
       });
-      fluxTermService.markDirty();
+      fluxBookService.markDirty();
     },
     [deleteBlocksByDocumentId, persistDocuments, setDocuments],
   );
@@ -95,8 +95,8 @@ export function useAppActions({
         baseContext.branch ?? null,
         docId,
       );
-      fluxTermService.execute(blockId, cmd, shell, effectiveCwd);
-      fluxTermService.markDirty();
+      fluxBookService.execute(blockId, cmd, shell, effectiveCwd);
+      fluxBookService.markDirty();
     },
     [baseContext, createBlock],
   );
@@ -124,8 +124,8 @@ export function useAppActions({
         baseContext.branch ?? null,
         newDocId,
       );
-      fluxTermService.execute(blockId, cmd, shell, effectiveCwd);
-      fluxTermService.markDirty();
+      fluxBookService.execute(blockId, cmd, shell, effectiveCwd);
+      fluxBookService.markDirty();
     },
     [baseContext, createBlock, persistDocuments, setDocuments],
   );
@@ -160,8 +160,8 @@ export function useAppActions({
         return;
       }
 
-      fluxTermService.execute(sameId, cmd, shell, effectiveCwd);
-      fluxTermService.markDirty();
+      fluxBookService.execute(sameId, cmd, shell, effectiveCwd);
+      fluxBookService.markDirty();
     },
     [blocks, runBlock],
   );
@@ -185,7 +185,7 @@ export function useAppActions({
         "",
         type,
       );
-      fluxTermService.markDirty();
+      fluxBookService.markDirty();
     },
     [blocks, spliceBlockAfter],
   );
@@ -208,8 +208,8 @@ export function useAppActions({
       if (!sameId) {
         return;
       }
-      fluxTermService.execute(sameId, cmd, shell, cwd);
-      fluxTermService.markDirty();
+      fluxBookService.execute(sameId, cmd, shell, cwd);
+      fluxBookService.markDirty();
     },
     [blocks, runBlock],
   );
@@ -217,7 +217,7 @@ export function useAppActions({
   const handleClearOutput = useCallback(
     (blockId: string) => {
       clearBlockOutput(blockId);
-      fluxTermService.markDirty();
+      fluxBookService.markDirty();
     },
     [clearBlockOutput],
   );

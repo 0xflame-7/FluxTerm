@@ -1,16 +1,16 @@
 import * as vscode from "vscode";
 import { Ext } from "../../utils/logger";
 import { getNonce } from "../../utils/helper";
-import { FluxTermDocumentSession } from "../services/FluxTermDocumentSession";
-import { FluxTermCustomDocument } from "../models/FluxTermCustomDocument";
-import { FluxTermDocument } from "../../types/MessageProtocol";
+import { FluxBookDocumentSession } from "../services/FluxBookDocumentSession";
+import { FluxBookCustomDocument } from "../models/FluxBookCustomDocument";
+import { FluxBookDocument } from "../../types/MessageProtocol";
 
-export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxTermCustomDocument> {
+export class FluxBookEditorProvider implements vscode.CustomEditorProvider<FluxBookCustomDocument> {
   // Map of webview panel to its session
-  private sessions = new Map<vscode.WebviewPanel, FluxTermDocumentSession>();
+  private sessions = new Map<vscode.WebviewPanel, FluxBookDocumentSession>();
 
   private readonly _onDidChangeCustomDocument = new vscode.EventEmitter<
-    vscode.CustomDocumentEditEvent<FluxTermCustomDocument>
+    vscode.CustomDocumentEditEvent<FluxBookCustomDocument>
   >();
   public readonly onDidChangeCustomDocument =
     this._onDidChangeCustomDocument.event;
@@ -19,7 +19,7 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
 
   public getSessionForUri(
     uri: vscode.Uri,
-  ): FluxTermDocumentSession | undefined {
+  ): FluxBookDocumentSession | undefined {
     for (const session of this.sessions.values()) {
       if (session.document.uri.toString() === uri.toString()) {
         return session;
@@ -32,9 +32,9 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
     uri: vscode.Uri,
     openContext: vscode.CustomDocumentOpenContext,
     _token: vscode.CancellationToken,
-  ): Promise<FluxTermCustomDocument> {
+  ): Promise<FluxBookCustomDocument> {
     // Read initial data from disk
-    let documentData: FluxTermDocument = {};
+    let documentData: FluxBookDocument = {};
     try {
       const fileData = await vscode.workspace.fs.readFile(uri);
       const text = Buffer.from(fileData).toString("utf8");
@@ -43,7 +43,7 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
       }
     } catch (e) {
       Ext.warn(
-        `[Flux_term EditorProvider] Could not parse .ftx file at ${uri.fsPath}; starting fresh`,
+        `[FlexBook EditorProvider] Could not parse .ftx file at ${uri.fsPath}; starting fresh`,
       );
       documentData = {};
     }
@@ -59,16 +59,16 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
       }
     }
 
-    return new FluxTermCustomDocument(uri, documentData);
+    return new FluxBookCustomDocument(uri, documentData);
   }
 
   public async resolveCustomEditor(
-    document: FluxTermCustomDocument,
+    document: FluxBookCustomDocument,
     webviewPanel: vscode.WebviewPanel,
     _token: vscode.CancellationToken,
   ): Promise<void> {
     // Create new session for this document + panel
-    const session = new FluxTermDocumentSession(
+    const session = new FluxBookDocumentSession(
       document,
       webviewPanel,
       this.context,
@@ -102,37 +102,37 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
   }
 
   public async saveCustomDocument(
-    document: FluxTermCustomDocument,
+    document: FluxBookCustomDocument,
     cancellation: vscode.CancellationToken,
   ): Promise<void> {
     Ext.info(
-      `[Flux_term EditorProvider] Saving document: ${document.uri.fsPath}`,
+      `[FlexBook EditorProvider] Saving document: ${document.uri.fsPath}`,
     );
     await this.saveAs(document, document.uri);
   }
 
   public async saveCustomDocumentAs(
-    document: FluxTermCustomDocument,
+    document: FluxBookCustomDocument,
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken,
   ): Promise<void> {
     Ext.info(
-      `[Flux_term EditorProvider] Saving document AS: ${destination.fsPath}`,
+      `[FlexBook EditorProvider] Saving document AS: ${destination.fsPath}`,
     );
     await this.saveAs(document, destination);
   }
 
   public async revertCustomDocument(
-    document: FluxTermCustomDocument,
+    document: FluxBookCustomDocument,
     cancellation: vscode.CancellationToken,
   ): Promise<void> {
     Ext.info(
-      `[Flux_term EditorProvider] Reverting document: ${document.uri.fsPath}`,
+      `[FlexBook EditorProvider] Reverting document: ${document.uri.fsPath}`,
     );
     // Re-read from disk
     const fileData = await vscode.workspace.fs.readFile(document.uri);
     const text = Buffer.from(fileData).toString("utf8");
-    let documentData: FluxTermDocument = {};
+    let documentData: FluxBookDocument = {};
     if (text.trim()) {
       try {
         documentData = JSON.parse(text);
@@ -151,12 +151,12 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
   }
 
   public async backupCustomDocument(
-    document: FluxTermCustomDocument,
+    document: FluxBookCustomDocument,
     context: vscode.CustomDocumentBackupContext,
     cancellation: vscode.CancellationToken,
   ): Promise<vscode.CustomDocumentBackup> {
     Ext.info(
-      `[Flux_term EditorProvider] Backing up document: ${document.uri.fsPath}`,
+      `[FlexBook EditorProvider] Backing up document: ${document.uri.fsPath}`,
     );
     const backupData = Buffer.from(
       JSON.stringify(document.documentData, null, 2),
@@ -175,11 +175,11 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
   }
 
   private async saveAs(
-    document: FluxTermCustomDocument,
+    document: FluxBookCustomDocument,
     destination: vscode.Uri,
   ): Promise<void> {
     // Find an active session for this document
-    let activeSession: FluxTermDocumentSession | undefined;
+    let activeSession: FluxBookDocumentSession | undefined;
     for (const session of this.sessions.values()) {
       if (session.document.uri.toString() === document.uri.toString()) {
         activeSession = session;
@@ -248,7 +248,7 @@ export class FluxTermEditorProvider implements vscode.CustomEditorProvider<FluxT
       <meta charset="UTF-8">
       <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource};">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Flux_term Editor</title>
+      <title>FlexBook Editor</title>
       <link href="${styleUri}" rel="stylesheet">
       <link href="${codiconsUri}" rel="stylesheet" />
       <style>

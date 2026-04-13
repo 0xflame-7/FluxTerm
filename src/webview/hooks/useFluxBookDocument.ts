@@ -1,39 +1,39 @@
 import { useEffect, useState, useCallback } from "react";
 import { produce } from "immer";
-import { fluxTermService } from "../services/FluxTermService";
+import { fluxBookService } from "../services/FluxBookService";
 import {
-  FluxTermDocument,
-  FluxTermContext,
-  FluxTermBlock,
+  FluxBookDocument,
+  FluxBookContext,
+  FluxBookBlock,
 } from "../../types/MessageProtocol";
 
-const DEFAULT_CONTEXT: FluxTermContext = {
+const DEFAULT_CONTEXT: FluxBookContext = {
   cwd: "",
   branch: null,
   shell: null,
   connection: "local",
 };
 
-export interface UseFluxTermDocumentReturn {
+export interface UseFluxBookDocumentReturn {
   /** The persisted document preferences (shell, cwd, branch) and optional saved blocks. */
-  document: FluxTermDocument;
+  document: FluxBookDocument;
   /** The live runtime context detected by the extension (real cwd, git branch). */
-  context: FluxTermContext;
+  context: FluxBookContext;
   /**
    * Update document preferences using an Immer producer.
    * Changes are immediately persisted to disk (suitable for preference fields
    * like shell selection — not for block output streaming).
    */
-  updateDocument: (producer: (draft: FluxTermDocument) => void) => void;
+  updateDocument: (producer: (draft: FluxBookDocument) => void) => void;
   /**
    * Explicitly save the full notebook state to disk.
    * Call this only on deliberate user save actions, not on execution events.
    */
-  saveDocument: (blocks: FluxTermBlock[], runtimeContext: FluxTermContext) => void;
+  saveDocument: (blocks: FluxBookBlock[], runtimeContext: FluxBookContext) => void;
 }
 
 /**
- * Manages document-level state: the saved FluxTermDocument and the live FluxTermContext
+ * Manages document-level state: the saved FluxBookDocument and the live FluxBookContext
  * received from the extension on init.
  *
  * Responsibilities:
@@ -45,12 +45,12 @@ export interface UseFluxTermDocumentReturn {
  *     auto-persist (e.g. shell selection).
  *   - Provide saveDocument() for the explicit notebook save action.
  */
-export const useFluxTermDocument = (): UseFluxTermDocumentReturn => {
-  const [document, setDocument] = useState<FluxTermDocument>({});
-  const [context, setContext] = useState<FluxTermContext>(DEFAULT_CONTEXT);
+export const useFluxBookDocument = (): UseFluxBookDocumentReturn => {
+  const [document, setDocument] = useState<FluxBookDocument>({});
+  const [context, setContext] = useState<FluxBookContext>(DEFAULT_CONTEXT);
 
   useEffect(() => {
-    const unsubscribe = fluxTermService.subscribe((message: any) => {
+    const unsubscribe = fluxBookService.subscribe((message: any) => {
       if (message.type === "init") {
         // doc may include saved blocks/runtimeContext from a previous explicit save
         setDocument(message.document ?? {});
@@ -61,7 +61,7 @@ export const useFluxTermDocument = (): UseFluxTermDocumentReturn => {
     });
 
     // Kick-start: ask the extension for the initial state and live context.
-    fluxTermService.init();
+    fluxBookService.init();
 
     return () => {
       unsubscribe();
@@ -73,11 +73,11 @@ export const useFluxTermDocument = (): UseFluxTermDocumentReturn => {
    * Uses an Immer producer for safe immutable updates.
    */
   const updateDocument = useCallback(
-    (producer: (draft: FluxTermDocument) => void) => {
+    (producer: (draft: FluxBookDocument) => void) => {
       setDocument((prev) => {
         const next = produce(prev, producer);
         // Auto-persist preference changes immediately
-        fluxTermService.saveDocument(next);
+        fluxBookService.saveDocument(next);
         return next;
       });
     },
@@ -89,14 +89,14 @@ export const useFluxTermDocument = (): UseFluxTermDocumentReturn => {
    * This is an intentional user action — not triggered by streaming events.
    */
   const saveDocument = useCallback(
-    (blocks: FluxTermBlock[], runtimeContext: FluxTermContext) => {
+    (blocks: FluxBookBlock[], runtimeContext: FluxBookContext) => {
       setDocument((prev) => {
-        const next: FluxTermDocument = {
+        const next: FluxBookDocument = {
           ...prev,
           blocks,
           runtimeContext,
         };
-        fluxTermService.saveDocument(next);
+        fluxBookService.saveDocument(next);
         return next;
       });
     },

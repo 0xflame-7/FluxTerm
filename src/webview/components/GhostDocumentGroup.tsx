@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Block } from "./block";
 import { BlockDocument } from "./BlockDocument";
-import { FluxTermContext, ResolvedShell } from "../../types/MessageProtocol";
-import { fluxTermService } from "../services/FluxTermService";
+import { FluxBookContext, ResolvedShell } from "../../types/MessageProtocol";
+import { fluxBookService } from "../services/FluxBookService";
 import { generateId } from "../../utils/helper";
 import { DEFAULT_DOC_NAME } from "../hooks/useAppActions";
 import { BlockDocumentMeta } from "../../types/MessageProtocol";
 
 export interface GhostDocumentGroupProps {
   shells: ResolvedShell[];
-  baseContext: FluxTermContext;
+  baseContext: FluxBookContext;
   setDocuments: React.Dispatch<React.SetStateAction<BlockDocumentMeta[]>>;
   persistDocuments: (updated: BlockDocumentMeta[]) => void;
   spliceBlockAfter: (
@@ -65,10 +65,10 @@ export function GhostDocumentGroup({
       baseContext.branch ?? null,
       newDocId,
     );
-    fluxTermService.execute(blockId, cmd, shell, effectiveCwd);
+    fluxBookService.execute(blockId, cmd, shell, effectiveCwd);
     setGhostDocCommand("");
     setGhostDocCwd("");
-    fluxTermService.markDirty();
+    fluxBookService.markDirty();
   };
 
   return (
@@ -113,7 +113,7 @@ export function GhostDocumentGroup({
           );
           setGhostDocCommand("");
           setGhostDocCwd("");
-          fluxTermService.markDirty();
+          fluxBookService.markDirty();
         }}
         onCwdChange={setGhostDocCwd}
       />

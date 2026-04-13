@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fluxTermService } from "../services/FluxTermService";
+import { fluxBookService } from "../services/FluxBookService";
 import { ResolvedShell } from "../../types/MessageProtocol";
 
 /**
@@ -22,7 +22,7 @@ export const useShellConfig = () => {
    * appropriate notebookStore mutations.
    */
   useEffect(() => {
-    const unsubscribe = fluxTermService.subscribe((message: any) => {
+    const unsubscribe = fluxBookService.subscribe((message: any) => {
       if (message.type === "shellList") {
         setShells(message.shells);
         if (message.shells.length > 0 && !selectedShell) {
@@ -31,7 +31,7 @@ export const useShellConfig = () => {
       }
     });
 
-    fluxTermService.getShellConfig();
+    fluxBookService.getShellConfig();
 
     return () => {
       unsubscribe();

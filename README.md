@@ -1,6 +1,6 @@
 <div align="center">
 
-# Flux_term
+# FlexBook
 
 **Block-based Terminal Workflow inside VS Code**
 
@@ -8,17 +8,17 @@ _A notebook-style terminal where commands are structured, reusable, and composab
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.110.0-007ACC?logo=visualstudiocode)](https://code.visualstudio.com/)
-[![Version](https://img.shields.io/badge/version-1.1.0-success)](CHANGELOG.md)
-[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/FluxTerm.flux_term?label=Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FluxTerm.flux_term)
+[![Version](https://img.shields.io/badge/version-1.0.0-success)](CHANGELOG.md)
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/FlexBook.flexbook?label=Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FlexBook.flexbook)
 
-![Flux_term Hero](https://raw.githubusercontent.com/0xdaksh-12/FluxTerm/main/assets/screenshots/01_empty_ui.png)
+![FlexBook Hero](https://raw.githubusercontent.com/0xdaksh-12/FlexBook/main/assets/screenshots/01_empty_ui.png)
 
 </div>
 
 ---
 
 <div align="center">
-<video src="https://raw.githubusercontent.com/0xdaksh-12/FluxTerm/main/assets/video/HomePage.webm" autoplay loop muted playsinline width="100%"></video>
+<video src="https://raw.githubusercontent.com/0xdaksh-12/FlexBook/main/assets/video/HomePage.webm" autoplay loop muted playsinline width="100%"></video>
 </div>
 
 ## The Problem
@@ -31,7 +31,7 @@ Developers repeat the same commands manually, lose context after closing a sessi
 
 ## The Solution
 
-Flux_term introduces **Command Blocks** — the atomic unit of execution:
+FlexBook introduces **Command Blocks** — the atomic unit of execution:
 
 - Each command runs in its own **isolated block** with its own shell process, CWD, and lifecycle
 - **Output is preserved** per block, independently scrollable and searchable
@@ -56,21 +56,21 @@ It's a hybrid of a terminal, a notebook (like Jupyter), and a command workflow s
 
 ### From the Marketplace
 
-[![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code%20Marketplace-007ACC?logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FluxTerm.flux_term)
+[![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code%20Marketplace-007ACC?logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FlexBook.flexbook)
 
-Search **Flux_term** in the VS Code Extensions panel, or click the badge above.
+Search **FlexBook** in the VS Code Extensions panel, or click the badge above.
 
 ### From VSIX
 
-1. Download `flux_term-1.1.0.vsix` from [Releases](https://github.com/0xdaksh-12/FluxTerm/releases)
+1. Download `flexbook-1.0.0.vsix` from [Releases](https://github.com/0xdaksh-12/FlexBook/releases)
 2. Open VS Code → `Extensions` → `...` menu → **Install from VSIX...**
 3. Select the downloaded file and reload
 
 ### From Source
 
 ```bash
-git clone https://github.com/0xdaksh-12/FluxTerm.git
-cd Flux_term
+git clone https://github.com/0xdaksh-12/FlexBook.git
+cd FlexBook
 pnpm install
 ```
 
@@ -81,8 +81,8 @@ Press `F5` in VS Code to launch the Extension Development Host.
 ## How to Use
 
 ```
-1. Open Flux_term
-   → Run "Flux_term: New File" from the Command Palette (Ctrl+Shift+P)
+1. Open FlexBook
+   → Run "FlexBook: New File" from the Command Palette (Ctrl+Shift+P)
    → Or create a file with the .ftx extension
 
 2. Type a command in the Command Block at the bottom

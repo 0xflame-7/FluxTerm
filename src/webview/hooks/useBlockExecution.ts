@@ -5,7 +5,7 @@
 // typed state transitions. It has no local state of its own.
 
 import { useEffect } from "react";
-import { fluxTermService } from "../services/FluxTermService";
+import { fluxBookService } from "../services/FluxBookService";
 import { OutputLine, BlockStatus } from "../../types/MessageProtocol";
 
 interface UseBlockExecutionProps {
@@ -34,7 +34,7 @@ export function useBlockExecution({
   setBlockStatus,
 }: UseBlockExecutionProps): void {
   useEffect(() => {
-    const unsubscribe = fluxTermService.subscribe((message: any) => {
+    const unsubscribe = fluxBookService.subscribe((message: any) => {
       switch (message.type) {
         case "stream": {
           appendOutput(message.blockId, message.lines);
@@ -55,7 +55,7 @@ export function useBlockExecution({
         case "blockError": {
           // Surface the error as a visible stderr line, then mark the block.
           appendOutput(message.blockId, [
-            { type: "stderr", text: `[FluxTerm Error] ${message.message}` },
+            { type: "stderr", text: `[FlexBook Error] ${message.message}` },
           ]);
           setBlockStatus(message.blockId, "error");
           break;

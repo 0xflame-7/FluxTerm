@@ -1,5 +1,5 @@
 import {
-  FluxTermDocument,
+  FluxBookDocument,
   ResolvedShell,
   WebviewMessage,
 } from "../../types/MessageProtocol";
@@ -17,8 +17,8 @@ declare const acquireVsCodeApi: () => VsCodeApi;
  * Singleton bridge between the React webview and the VS Code extension host.
  * All messages crossing the boundary must be typed against MessageProtocol.ts.
  */
-class FluxTermService {
-  private static instance: FluxTermService;
+class FluxBookService {
+  private static instance: FluxBookService;
   private vscode: VsCodeApi;
   private listeners: Set<(message: any) => void> = new Set();
 
@@ -34,11 +34,11 @@ class FluxTermService {
     });
   }
 
-  public static getInstance(): FluxTermService {
-    if (!FluxTermService.instance) {
-      FluxTermService.instance = new FluxTermService();
+  public static getInstance(): FluxBookService {
+    if (!FluxBookService.instance) {
+      FluxBookService.instance = new FluxBookService();
     }
-    return FluxTermService.instance;
+    return FluxBookService.instance;
   }
 
   /** Register a listener for extension messages. Returns an unsubscribe fn. */
@@ -61,14 +61,14 @@ class FluxTermService {
    * This is the ONLY way notebook state is persisted — do not call on every
    * execution event.
    */
-  public saveDocument(document: FluxTermDocument): void {
+  public saveDocument(document: FluxBookDocument): void {
     this.vscode.postMessage({ type: "update", document });
   }
 
   /**
    * Respond to a requestSave with the full notebook state.
    */
-  public sendSaveResponse(document: FluxTermDocument): void {
+  public sendSaveResponse(document: FluxBookDocument): void {
     this.vscode.postMessage({ type: "saveResponse", document });
   }
 
@@ -176,4 +176,4 @@ class FluxTermService {
   }
 }
 
-export const fluxTermService = FluxTermService.getInstance();
+export const fluxBookService = FluxBookService.getInstance();

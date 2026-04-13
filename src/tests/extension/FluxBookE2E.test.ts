@@ -3,15 +3,15 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
-import { FluxTermEditorProvider } from "../../extension/providers/FluxTermEditorProvider";
-import { FluxTermDocumentSession } from "../../extension/services/FluxTermDocumentSession";
+import { FluxBookEditorProvider } from "../../extension/providers/FluxBookEditorProvider";
+import { FluxBookDocumentSession } from "../../extension/services/FluxBookDocumentSession";
 import { ExtMessage, ResolvedShell } from "../../types/MessageProtocol";
 import { ShellResolver } from "../../extension/services/ShellResolver";
 
-suite("FluxTerm Electron E2E Workflow Test Suite", () => {
+suite("FluxBook Electron E2E Workflow Test Suite", () => {
   let testFileUri: vscode.Uri;
-  let provider: FluxTermEditorProvider;
-  let session: FluxTermDocumentSession;
+  let provider: FluxBookEditorProvider;
+  let session: FluxBookDocumentSession;
   let shells: ResolvedShell[] = [];
   let testShell: ResolvedShell;
 
@@ -21,7 +21,7 @@ suite("FluxTerm Electron E2E Workflow Test Suite", () => {
     );
 
     // Get extension API
-    const ext = vscode.extensions.getExtension("FluxTerm.flux_term");
+    const ext = vscode.extensions.getExtension("FlexBook.flexbook");
     if (!ext) {
       throw new Error("Extension not found");
     }
@@ -47,7 +47,7 @@ suite("FluxTerm Electron E2E Workflow Test Suite", () => {
 
   test("Should launch extension, create file, and resolve session", async () => {
     // Trigger creation via the internal command and override the blocking dialog
-    await vscode.commands.executeCommand("fluxterm.newFile", testFileUri);
+    await vscode.commands.executeCommand("flexbook.newFile", testFileUri);
 
     // Wait for Webview Panel resolution
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -96,7 +96,7 @@ suite("FluxTerm Electron E2E Workflow Test Suite", () => {
 
     await session.postToWebview({
       type: "testRunCommand",
-      command: "echo 'FluxTerm E2E Live Test'",
+      command: "echo 'FluxBook E2E Live Test'",
     });
     await completePromise;
     await new Promise((r) => setTimeout(r, 1000));

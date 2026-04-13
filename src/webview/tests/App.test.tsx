@@ -1,7 +1,7 @@
 import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import App from '../App';
-import { fluxTermService } from '../services/FluxTermService';
+import { fluxBookService } from '../services/FluxBookService';
 
 describe('App Integration', () => {
     beforeEach(() => {
@@ -39,7 +39,7 @@ describe('App Integration', () => {
 
         act(() => {
             // Simulate extension sending init response
-            (fluxTermService as any).notifyListeners({
+            (fluxBookService as any).notifyListeners({
                 type: 'init',
                 document: mockDoc,
                 context: { cwd: '/test', branch: 'main', connection: 'local', shell: null }
@@ -53,7 +53,7 @@ describe('App Integration', () => {
     it('should trigger command execution via testRunCommand event', () => {
         render(<App />);
         
-        const executeSpy = vi.spyOn(fluxTermService, 'execute');
+        const executeSpy = vi.spyOn(fluxBookService, 'execute');
 
         act(() => {
             window.dispatchEvent(new MessageEvent('message', {

@@ -1,13 +1,13 @@
 {
-  "name": "flux_term",
-  "displayName": "Flux_term",
+  "name": "flexbook",
+  "displayName": "FlexBook",
   "description": "A notebook-style terminal where commands are structured, reusable, and composable — directly in VS Code.",
-  "version": "1.1.0",
-  "publisher": "FluxTerm",
+  "version": "1.0.0",
+  "publisher": "FlexBook",
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/0xdaksh-12/FluxTerm.git"
+    "url": "https://github.com/0xdaksh-12/FlexBook.git"
   },
   "license": "Apache-2.0",
   "keywords": [
@@ -30,14 +30,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "fluxterm.newFile",
-        "title": "Flux_term: New File"
+        "command": "flexbook.newFile",
+        "title": "FlexBook: New File"
       }
     ],
     "customEditors": [
       {
-        "viewType": "fluxterm.editor",
-        "displayName": "Flux_term Editor",
+        "viewType": "flexbook.editor",
+        "displayName": "FlexBook Editor",
         "selector": [
           {
             "filenamePattern": "*.ftx"

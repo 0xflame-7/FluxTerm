@@ -7,11 +7,11 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import {
-  FluxTermBlock,
-  FluxTermContext,
+  FluxBookBlock,
+  FluxBookContext,
   ResolvedShell,
 } from "../../../types/MessageProtocol";
-import { fluxTermService } from "../../services/FluxTermService";
+import { fluxBookService } from "../../services/FluxBookService";
 import { OutputArea } from "./OutputArea";
 import { BlockInput } from "./BlockInput";
 import { ContextMenu } from "./ContextMenu";
@@ -23,7 +23,7 @@ export interface BlockProps {
   /**
    * The backing store block. `null` for the ghost block (not yet in store).
    */
-  block: FluxTermBlock | null;
+  block: FluxBookBlock | null;
   /**
    * When true this is the persistent trailing ghost block.
    * The ghost is not in the store — it is controlled via ghostCommand/onGhostCommandChange.
@@ -45,7 +45,7 @@ export interface BlockProps {
   ) => void;
 
   // Context bar
-  context: FluxTermContext;
+  context: FluxBookContext;
   availableShells: ResolvedShell[];
   onShellChange: (shell: ResolvedShell) => void;
 
@@ -234,7 +234,7 @@ export const Block = forwardRef<HTMLDivElement, BlockProps>(
     }, [block]);
 
     const handleKillInternal = useCallback(() => {
-      if (block) fluxTermService.killBlock(block.id);
+      if (block) fluxBookService.killBlock(block.id);
     }, [block]);
 
     // Card border colour reflects status

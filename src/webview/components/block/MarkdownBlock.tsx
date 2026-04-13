@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect, forwardRef } from "react";
 import ReactMarkdown from "react-markdown";
-import { FluxTermBlock } from "../../../types/MessageProtocol";
+import { FluxBookBlock } from "../../../types/MessageProtocol";
 import { Tooltip } from "../common";
 
 export interface MarkdownBlockProps {
-  block: FluxTermBlock;
+  block: FluxBookBlock;
   onUpdate: (newMarkdown: string) => void;
   onDelete: () => void;
   onAddTerminalAfter: () => void;

@@ -5,19 +5,19 @@ import { exec } from "child_process";
 import { promisify } from "util";
 
 import {
-  FluxTermDocument,
+  FluxBookDocument,
   WebviewMessage,
   ExtMessage,
-  FluxTermContext,
+  FluxBookContext,
 } from "../../types/MessageProtocol";
 import { Ext } from "../../utils/logger";
 import { ShellResolver } from "./ShellResolver";
 import { ExecutionEngine } from "./ExecutionEngine";
-import { FluxTermCustomDocument } from "../models/FluxTermCustomDocument";
+import { FluxBookCustomDocument } from "../models/FluxBookCustomDocument";
 
 const execAsync = promisify(exec);
 
-export class FluxTermDocumentSession {
+export class FluxBookDocumentSession {
   private isDisposed = false;
   private readonly disposables: vscode.Disposable[] = [];
 
@@ -29,14 +29,14 @@ export class FluxTermDocumentSession {
   private readonly engine: ExecutionEngine;
 
   private readonly _onDidUpdateDocument =
-    new vscode.EventEmitter<FluxTermDocument>();
+    new vscode.EventEmitter<FluxBookDocument>();
   public readonly onDidUpdateDocument = this._onDidUpdateDocument.event;
 
-  private latestState: FluxTermDocument | null = null;
-  private saveResolvers: ((doc: FluxTermDocument) => void)[] = [];
+  private latestState: FluxBookDocument | null = null;
+  private saveResolvers: ((doc: FluxBookDocument) => void)[] = [];
 
   constructor(
-    public readonly document: FluxTermCustomDocument,
+    public readonly document: FluxBookCustomDocument,
     private readonly panel: vscode.WebviewPanel,
     private readonly context: vscode.ExtensionContext,
   ) {
@@ -91,11 +91,11 @@ export class FluxTermDocumentSession {
         const liveCwd = this.getCwd();
         const liveBranch = await this.getGitBranch(liveCwd);
 
-        const context: FluxTermContext = {
+        const context: FluxBookContext = {
           cwd: liveCwd,
           branch: liveBranch,
           // The extension only knows the saved shell id (a string). The
-          // webview is responsible for matching FluxTermDocument.shell against
+          // webview is responsible for matching FluxBookDocument.shell against
           // the live shellList to restore the selected ResolvedShell.
           shell: null,
           connection: "local",
@@ -270,20 +270,20 @@ export class FluxTermDocumentSession {
     this.isProcessing = false;
   }
 
-  private parseDocument(): FluxTermDocument {
+  private parseDocument(): FluxBookDocument {
     return this.latestState || this.document.documentData;
   }
 
   /**
    * Called by the CustomEditorProvider when the document is reverted.
    */
-  public revert(documentData: FluxTermDocument) {
+  public revert(documentData: FluxBookDocument) {
     this.latestState = documentData;
     // Notify the webview to re-render the reverted state
     this.enqueue(async () => {
       const liveCwd = this.getCwd();
       const liveBranch = await this.getGitBranch(liveCwd);
-      const context: FluxTermContext = {
+      const context: FluxBookContext = {
         cwd: liveCwd,
         branch: liveBranch,
         shell: null,
@@ -296,7 +296,7 @@ export class FluxTermDocumentSession {
   /**
    * Request the latest document state from the webview.
    */
-  public async getLatestDocument(): Promise<FluxTermDocument> {
+  public async getLatestDocument(): Promise<FluxBookDocument> {
     return new Promise((resolve) => {
       // Fallback timeout in case the webview doesn't respond
       const timer = setTimeout(() => {

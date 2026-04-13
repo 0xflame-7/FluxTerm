@@ -2,18 +2,18 @@ import React, { useState } from "react";
 import { Block, MarkdownBlock } from "./block";
 import { BlockDocument } from "./BlockDocument";
 import {
-  FluxTermContext,
+  FluxBookContext,
   ResolvedShell,
   BlockDocumentMeta,
-  FluxTermBlock,
+  FluxBookBlock,
 } from "../../types/MessageProtocol";
-import { fluxTermService } from "../services/FluxTermService";
+import { fluxBookService } from "../services/FluxBookService";
 
 export interface DocumentGroupProps {
   doc: BlockDocumentMeta;
-  docBlocks: FluxTermBlock[];
+  docBlocks: FluxBookBlock[];
   shells: ResolvedShell[];
-  baseContext: FluxTermContext;
+  baseContext: FluxBookContext;
   updateBlockCwd: (blockId: string, cwd: string) => void;
   updateBlockCommand: (blockId: string, command: string) => void;
   deleteBlock: (blockId: string) => void;
@@ -101,11 +101,11 @@ export function DocumentGroup({
             block={block}
             onUpdate={(text) => {
               updateBlockCommand(block.id, text);
-              fluxTermService.markDirty();
+              fluxBookService.markDirty();
             }}
             onDelete={() => {
               deleteBlock(block.id);
-              fluxTermService.markDirty();
+              fluxBookService.markDirty();
             }}
             onAddTerminalAfter={() =>
               actions.handleAddAfter(block.id, doc.id, "terminal")
@@ -126,7 +126,7 @@ export function DocumentGroup({
             }
             onDelete={() => {
               deleteBlock(block.id);
-              fluxTermService.markDirty();
+              fluxBookService.markDirty();
             }}
             onReRun={(cmd, cwd, shell) =>
               actions.handleReRun(block.id, cmd, cwd, shell)
@@ -135,7 +135,7 @@ export function DocumentGroup({
             onAddAfter={(cmd, cwd, shell, type) =>
               actions.handleAddAfter(block.id, doc.id, type)
             }
-            onKill={() => fluxTermService.killBlock(block.id)}
+            onKill={() => fluxBookService.killBlock(block.id)}
             onCwdChange={(newCwd) => {
               if (block.status === "idle") updateBlockCwd(block.id, newCwd);
             }}
@@ -173,7 +173,7 @@ export function DocumentGroup({
             );
             setGhostCmd("");
             setGhostCwd("");
-            fluxTermService.markDirty();
+            fluxBookService.markDirty();
           } else {
             const last = docBlocks[docBlocks.length - 1];
             if (last) {
@@ -192,7 +192,7 @@ export function DocumentGroup({
                 "",
                 type,
               );
-              fluxTermService.markDirty();
+              fluxBookService.markDirty();
             }
           }
         }}

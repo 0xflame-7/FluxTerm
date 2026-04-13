@@ -14,7 +14,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { fluxTermService } from "../../services/FluxTermService";
+import { fluxBookService } from "../../services/FluxBookService";
 
 // Helpers
 
@@ -113,7 +113,7 @@ export const CwdEditor: React.FC<CwdEditorProps> = ({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       const queryDir = dirForQuery(value);
-      const entries = await fluxTermService.listDir(queryDir);
+      const entries = await fluxBookService.listDir(queryDir);
       // Refresh position every time suggestions are about to show
       if (inputRef.current) {
         setDropdownRect(inputRef.current.getBoundingClientRect());
@@ -147,7 +147,7 @@ export const CwdEditor: React.FC<CwdEditorProps> = ({
 
       // Validate: use statPath to confirm the exact path exists and is a directory.
       const normalized = trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
-      const { exists, isDirectory } = await fluxTermService.statPath(
+      const { exists, isDirectory } = await fluxBookService.statPath(
         normalized || "/",
       );
 
@@ -157,9 +157,9 @@ export const CwdEditor: React.FC<CwdEditorProps> = ({
         onCommit(trimmed);
         exitEditMode(false);
       } else {
-        fluxTermService.notify(
+        fluxBookService.notify(
           "warning",
-          `Flux_term: Invalid directory — "${trimmed}" does not exist.`,
+          `FlexBook: Invalid directory — "${trimmed}" does not exist.`,
         );
         inputRef.current?.focus();
       }

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { FluxTermDocumentSession } from "../../extension/services/FluxTermDocumentSession";
+import { FluxBookDocumentSession } from "../../extension/services/FluxBookDocumentSession";
 import { WebviewMessage, ExtMessage, ResolvedShell } from "../../types/MessageProtocol";
 import { ShellResolver } from "../../extension/services/ShellResolver";
 import * as os from "os";
 
-// We must import FluxTermDocumentSession AFTER the vi.mock
+// We must import FluxBookDocumentSession AFTER the vi.mock
 const { mockPostMessage, mockOnDidReceiveMessage, mockOnDidDispose, mockApplyEdit } = vi.hoisted(() => {
   return {
     mockPostMessage: vi.fn(),
@@ -38,8 +38,8 @@ vi.mock("vscode", () => {
 });
 
 
-describe("FluxTermDocumentSession Integration", () => {
-  let session: FluxTermDocumentSession;
+describe("FluxBookDocumentSession Integration", () => {
+  let session: FluxBookDocumentSession;
   let mockDocument: any;
   let mockPanel: any;
   let mockContext: any;
@@ -83,7 +83,7 @@ describe("FluxTermDocumentSession Integration", () => {
   it("handles init message and returns document+context", async () => {
     mockDocument.documentData = { blocks: [] };
 
-    session = new FluxTermDocumentSession(mockDocument, mockPanel, mockContext);
+    session = new FluxBookDocumentSession(mockDocument, mockPanel, mockContext);
 
     await simulateWebviewMessage({ type: "init" });
 
@@ -98,7 +98,7 @@ describe("FluxTermDocumentSession Integration", () => {
 
   it("handles update message and triggers onDidUpdateDocument", async () => {
     mockDocument.documentData = {};
-    session = new FluxTermDocumentSession(mockDocument, mockPanel, mockContext);
+    session = new FluxBookDocumentSession(mockDocument, mockPanel, mockContext);
 
     const docUpdate = { blocks: [], runtimeContext: { cwd: "/test", branch: null, shell: null, connection: "local" as const } };
     
@@ -114,12 +114,12 @@ describe("FluxTermDocumentSession Integration", () => {
     expect(mockApplyEdit).not.toHaveBeenCalled(); // No disk save on update
   });
 
-  // This test no longer applies since FluxTermCustomDocument parses on creation
-  // and FluxTermDocumentSession just takes the data.
+  // This test no longer applies since FluxBookCustomDocument parses on creation
+  // and FluxBookDocumentSession just takes the data.
   // We can skip or keep a structural equivalent.
   it("handles empty document gracefully", async () => {
     mockDocument.documentData = {};
-    session = new FluxTermDocumentSession(mockDocument, mockPanel, mockContext);
+    session = new FluxBookDocumentSession(mockDocument, mockPanel, mockContext);
 
     await simulateWebviewMessage({ type: "init" });
 
@@ -129,7 +129,7 @@ describe("FluxTermDocumentSession Integration", () => {
 
   it("handles execute message and relays stream/complete events", async () => {
     mockDocument.documentData = {};
-    session = new FluxTermDocumentSession(mockDocument, mockPanel, mockContext);
+    session = new FluxBookDocumentSession(mockDocument, mockPanel, mockContext);
 
     const shells = await ShellResolver.resolve();
     const isWin = process.platform === "win32";

@@ -16,7 +16,7 @@ export type BlockStatus = "idle" | "running" | "done" | "error" | "killed";
  * They reflect the environment at the time the command runs.
  * Final values (finalCwd, finalBranch, exitCode) are populated on completion.
  */
-export interface FluxTermBlock {
+export interface FluxBookBlock {
   /** Unique identifier for this block. */
   id: string;
   /** Sequential display number, monotonically increasing. */
@@ -82,7 +82,7 @@ export interface FluxTermBlock {
  * Only updated by completed (non-killed) blocks.
  * Used to set the initial shell, cwd, and branch for the next block.
  */
-export interface FluxTermContext {
+export interface FluxBookContext {
   cwd: string;
   branch: string | null;
   /** The currently selected resolved shell, or null if not yet chosen. */
@@ -101,11 +101,11 @@ export interface BlockDocumentMeta {
   name: string;
 }
 
-export interface FluxTermDocument {
+export interface FluxBookDocument {
   /** Saved block list. Populated on explicit save only. */
-  blocks?: FluxTermBlock[];
+  blocks?: FluxBookBlock[];
   /** Saved runtime context. Populated on explicit save only. */
-  runtimeContext?: FluxTermContext;
+  runtimeContext?: FluxBookContext;
   /** Preferred shell path, persisted immediately on shell selection change. */
   shell?: string;
   /** Preferred starting cwd, persisted immediately on change. */
@@ -140,13 +140,13 @@ export type WebviewMessage =
   /** Request initial document state + live context from extension. */
   | { type: "init" }
   /** Explicit save: persist the full notebook state to disk. */
-  | { type: "update"; document: FluxTermDocument }
+  | { type: "update"; document: FluxBookDocument }
   /** Request the list of available shells on this machine. */
   | { type: "shellConfig" }
   /** Forward a webview console log to the extension output channel. */
   | { type: "log"; message: string }
   /** Respond to a requestSave with the complete current state */
-  | { type: "saveResponse"; document: FluxTermDocument }
+  | { type: "saveResponse"; document: FluxBookDocument }
   /** Notify the extension that the document has changed in-memory and should be marked dirty */
   | { type: "markDirty" }
   /** Start executing a command in a new isolated shell process. */
@@ -180,7 +180,7 @@ export type WebviewMessage =
 // Extension → Webview Messages
 export type ExtMessage =
   /** Initial state: saved document + live context (cwd, branch). */
-  | { type: "init"; document: FluxTermDocument; context: FluxTermContext }
+  | { type: "init"; document: FluxBookDocument; context: FluxBookContext }
   /** Available shells resolved from the host machine. */
   | { type: "shellList"; shells: ResolvedShell[] }
   /** Request the webview to send back its latest document state for saving. */

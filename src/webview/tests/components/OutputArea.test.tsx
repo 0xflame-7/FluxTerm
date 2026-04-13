@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { OutputArea } from '../../components/block/OutputArea';
-import { FluxTermBlock, ResolvedShell } from '../../../types/MessageProtocol';
+import { FluxBookBlock, ResolvedShell } from '../../../types/MessageProtocol';
 
 const mockShell: ResolvedShell = { id: 'sh', label: 'sh', path: '/bin/sh', args: [] };
 
-const createMockBlock = (output: any[] = [], status: any = 'done'): FluxTermBlock => ({
+const createMockBlock = (output: any[] = [], status: any = 'done'): FluxBookBlock => ({
     id: 'block-1',
     seq: 1,
     command: 'ls',

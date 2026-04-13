@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import Ansi from "ansi-to-react";
-import { FluxTermBlock, OutputLine } from "../../../types/MessageProtocol";
+import { FluxBookBlock, OutputLine } from "../../../types/MessageProtocol";
 import { List, useDynamicRowHeight } from "react-window";
 
 // Shared date formatter
@@ -137,7 +137,7 @@ const RowItem = ({
 };
 
 export const OutputArea: React.FC<{
-  block: FluxTermBlock;
+  block: FluxBookBlock;
   searchQuery: string;
 }> = ({ block, searchQuery }) => {
   const { output, status, clearedAt, clearedAtTime } = block;
@@ -282,7 +282,7 @@ export const OutputArea: React.FC<{
           rowHeight={dynamicRowHeight}
           rowProps={{ flatItems }}
           rowComponent={RowItem}
-          className="fluxterm-output-list"
+          className="flexbook-output-list"
           style={{ width: "100%", height: "100%", overflowX: "hidden" }}
         />
       )}

@@ -11,9 +11,9 @@
 import { useState, useCallback, useRef } from "react";
 import { produce } from "immer";
 import {
-  FluxTermBlock,
+  FluxBookBlock,
   BlockStatus,
-  FluxTermContext,
+  FluxBookContext,
   OutputLine,
   ResolvedShell,
 } from "../../types/MessageProtocol";
@@ -21,8 +21,8 @@ import { generateId } from "../../utils/helper";
 
 // Internal State Shape
 interface NotebookState {
-  blocks: FluxTermBlock[];
-  runtimeContext: FluxTermContext;
+  blocks: FluxBookBlock[];
+  runtimeContext: FluxBookContext;
   /**
    * Monotonically increasing counter used ONLY as a sequence guard for
    * `completeBlock`. Never used for visual ordering — block array order is
@@ -33,8 +33,8 @@ interface NotebookState {
 
 // useNotebook Hook
 export interface UseNotebookReturn {
-  blocks: FluxTermBlock[];
-  runtimeContext: FluxTermContext;
+  blocks: FluxBookBlock[];
+  runtimeContext: FluxBookContext;
   createBlock: (
     command: string,
     shell: ResolvedShell,
@@ -71,10 +71,10 @@ export interface UseNotebookReturn {
    * Lines before this index will be hidden in the OutputArea.
    */
   clearBlockOutput: (blockId: string) => void;
-  setRuntimeContext: (ctx: FluxTermContext) => void;
+  setRuntimeContext: (ctx: FluxBookContext) => void;
   resetNotebook: (
-    blocks: FluxTermBlock[],
-    runtimeContext: FluxTermContext,
+    blocks: FluxBookBlock[],
+    runtimeContext: FluxBookContext,
   ) => void;
   /**
    * Insert a new idle block immediately after `afterBlockId`.
@@ -112,8 +112,8 @@ export interface UseNotebookReturn {
  * @param initialBlocks  - Pre-existing blocks to restore (e.g. from saved file).
  */
 export function useNotebook(
-  initialContext: FluxTermContext,
-  initialBlocks: FluxTermBlock[] = [],
+  initialContext: FluxBookContext,
+  initialBlocks: FluxBookBlock[] = [],
 ): UseNotebookReturn {
   const [state, setState] = useState<NotebookState>(() => ({
     blocks: initialBlocks,
@@ -138,7 +138,7 @@ export function useNotebook(
    * Called when the extension sends the live context on init.
    * Does NOT affect any existing block's properties.
    */
-  const setRuntimeContext = useCallback((ctx: FluxTermContext) => {
+  const setRuntimeContext = useCallback((ctx: FluxBookContext) => {
     setState((prev) =>
       produce(prev, (draft) => {
         draft.runtimeContext = ctx;
@@ -151,7 +151,7 @@ export function useNotebook(
    * Used when loading a previously saved document.
    */
   const resetNotebook = useCallback(
-    (blocks: FluxTermBlock[], runtimeContext: FluxTermContext) => {
+    (blocks: FluxBookBlock[], runtimeContext: FluxBookContext) => {
       setState({
         blocks,
         runtimeContext,
@@ -297,7 +297,7 @@ export function useNotebook(
 
   /**
    * Remove a block from the list.
-   * Running blocks should be killed first via fluxTermService.killBlock().
+   * Running blocks should be killed first via fluxBookService.killBlock().
    */
   const deleteBlock = useCallback((blockId: string) => {
     setState((prev) =>

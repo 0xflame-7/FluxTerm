@@ -295,7 +295,7 @@ const MockInputSection = ({
                     fontSize: "11px",
                   }}
                 >
-                  /home/daksh/Desktop/FUCK/FluxTerm
+                  /home/daksh/Desktop/FUCK/FluxBook
                 </span>
               </div>
             </>

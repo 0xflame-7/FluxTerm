@@ -1,13 +1,13 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import { useFluxTermDocument } from "./hooks/useFluxTermDocument";
+import { useFluxBookDocument } from "./hooks/useFluxBookDocument";
 import { useShellConfig } from "./hooks/useShellConfig";
 import { useNotebook } from "./store/notebookStore";
 import { useBlockExecution } from "./hooks/useBlockExecution";
-import { fluxTermService } from "./services/FluxTermService";
+import { fluxBookService } from "./services/FluxBookService";
 import { DocumentGroup } from "./components/DocumentGroup";
 import { GhostDocumentGroup } from "./components/GhostDocumentGroup";
 import { useAppActions } from "./hooks/useAppActions";
-import { FluxTermContext, BlockDocumentMeta } from "../types/MessageProtocol";
+import { FluxBookContext, BlockDocumentMeta } from "../types/MessageProtocol";
 
 const ANIM_CSS = `
 @keyframes spin {
@@ -23,7 +23,7 @@ const ANIM_CSS = `
 const DEFAULT_DOC_NAME = "Workspace";
 
 export default function App() {
-  const { document, context: docContext, updateDocument } = useFluxTermDocument();
+  const { document, context: docContext, updateDocument } = useFluxBookDocument();
   const { shells } = useShellConfig();
 
   const {
@@ -87,10 +87,10 @@ export default function App() {
 
   // Handle requestSave from extension
   useEffect(() => {
-    const unsubscribe = fluxTermService.subscribe((message: any) => {
+    const unsubscribe = fluxBookService.subscribe((message: any) => {
       if (message.type === "requestSave") {
         const d = latestDataRef.current;
-        fluxTermService.sendSaveResponse({
+        fluxBookService.sendSaveResponse({
           ...d.document,
           blocks: d.blocks,
           runtimeContext: d.runtimeContext,
@@ -110,7 +110,7 @@ export default function App() {
     window.document.head.appendChild(style);
   }
 
-  const baseContext: FluxTermContext = {
+  const baseContext: FluxBookContext = {
     cwd: runtimeContext.cwd || docContext.cwd || "",
     branch: runtimeContext.branch ?? docContext.branch ?? null,
     shell: runtimeContext.shell ?? null,
@@ -148,7 +148,7 @@ export default function App() {
         const runningBlock = Array.isArray(blocks)
           ? blocks.find((b) => b.status === "running")
           : null;
-        if (runningBlock) fluxTermService.sendInput(runningBlock.id, msg.text);
+        if (runningBlock) fluxBookService.sendInput(runningBlock.id, msg.text);
       }
     };
     window.addEventListener("message", handleTestMessage);
