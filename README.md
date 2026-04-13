@@ -11,7 +11,7 @@ _A notebook-style terminal where commands are structured, reusable, and composab
 [![Version](https://img.shields.io/badge/version-1.0.0-success)](CHANGELOG.md)
 [![Marketplace](https://img.shields.io/visual-studio-marketplace/v/FlexBook.flexbook?label=Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=FlexBook.flexbook)
 
-![FlexBook Hero](https://raw.githubusercontent.com/0xdaksh-12/FlexBook/main/assets/screenshots/01_empty_ui.png)
+![FlexBook Hero](https://raw.githubusercontent.com/0xdaksh-12/FlexBook/main/assets/screenshots/Hero.png)
 
 </div>
 
